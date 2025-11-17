@@ -3,8 +3,6 @@ name: Release Custom Card
 on:
   # Triggers the workflow when a new tag is pushed (e.g., git push --tags)
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+' # Matches tags like v1.0.0, v2.5.3
 
 jobs:
   release:
