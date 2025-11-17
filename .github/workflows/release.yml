@@ -27,7 +27,8 @@ jobs:
           # Hardcode the tag name for testing purposes.
           tag_name: v1
           # If you want to force it to always be a draft:
-          draft: true 
+          draft: false
+          prerelease: false
           # You can also set a name for the release (optional)
           name: Release v1 - Test
           files: |
