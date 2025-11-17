@@ -1,7 +1,7 @@
 {
   "name": "Power Flow Card",
-  "render_readme": true,
+  "render_readme": false,
   "homeassistant": "2025.10.0",
-  "iot_class": "local_push",
-  "domains": ["sensor"]
+  "content_in_root": false,
+  "filename": "power-flow-card.js"
 }
