@@ -42,8 +42,15 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          # Files now points to the output of the build step!
+          # This line ensures the release is overwritten if it already exists
+          overwrite: true 
+          
+          # Use the Git tag as the release name
+          tag_name: ${{ github.ref }} 
+          
+          # Ensure you are still attaching your built file
           files: |
-            dist/power-flow-card.js
+            dist/power-flow-card.js 
+            
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
