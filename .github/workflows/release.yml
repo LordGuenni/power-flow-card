@@ -16,32 +16,32 @@ jobs:
       contents: write
       
     steps:
-      - name: ⬇️ Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
         
-      - name: 🔧 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
           
-      - name: 📦 Install Dependencies
+      - name: Install Dependencies
         run: npm ci
 
       # --- LINT & TEST ---
-      - name: 🧹 Run Lint Check (and Fix)
+      - name: Run Lint Check (and Fix)
         run: npm run lint -- --fix
         
-      - name: 🧹 Run Lint Check (and Fix) # <--- If you accidentally duplicated the name
+      - name: Run Lint Check (and Fix) # <--- If you accidentally duplicated the name
         run: npm run lint
 
       # --- BUILD STEP (if your card needs bundling, e.g., with Webpack/Rollup) ---
       # If your card is just a single JS file, you might skip this step.
-      - name: 🔨 Build Card (if applicable)
+      - name: Build Card (if applicable)
         run: npm run build
         
       # --- CREATE GITHUB RELEASE ---
-      - name: 🏷️ Create GitHub Release
+      - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
