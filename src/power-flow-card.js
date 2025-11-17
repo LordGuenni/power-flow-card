@@ -1,13 +1,8 @@
-import { LitElement, html, css } from 'lit'; // Changed from unpkg
-
-// 1. IMPORT SVG FILES AS RAW STRINGS (Handled by rollup-plugin-string)
-// The path must be relative to this file for Rollup to find them.
-import primarySvg from './assets/grid_line.svg';
-import outSvg from './assets/grid_out.svg';
-import solarSvg from './assets/solar_line.svg';
-import batterySvg from './assets/home_battery.svg';
-import evSvg from './assets/ev_line.svg';
-import homeBgSvg from './assets/home.svg';
+import {
+    LitElement,
+    html,
+    css
+} from 'https://unpkg.com/lit?module';
 
 class PowerFlowCard extends LitElement {
     // 1. Define component properties
@@ -25,21 +20,22 @@ class PowerFlowCard extends LitElement {
     // 2. Constructor & Initial Setup
     constructor() {
         super();
-        
-        // 2a. New object holds the imported SVG XML strings
-        this.svgContents = {
-            primary: primarySvg,
-            out: outSvg,
-            solar: solarSvg,
-            battery: batterySvg,
-            ev: evSvg,
-            bg: homeBgSvg
+        this.svgPaths = {
+            primary: '/local/assets/grid_line.svg',
+            out: '/local/assets/grid_out.svg',
+            solar: '/local/assets/solar_line.svg',
+            battery: '/local/assets/home_battery.svg',
+            ev: '/local/assets/ev_line.svg',
+            bg: '/local/assets/home.svg'
         };
 
+        // ---
+        // This 'lineConfig' array is the only section that has been changed.
+        // ---
         this.lineConfig = [
-            { id: 'solar', type: 'solar', entity_key: 'solar_power', reverse: true, container: 'solar', pathKey: 'solar' },
+            { id: 'solar', type: 'solar', entity_key: 'solar_power', reverse: true, container: 'solar' },
             { id: 'battery', type: 'bat-charge', entity_key: 'battery_charge_power', reverse: false, container: 'battery', pathKey: 'battery' },
-            { id: 'ev', type: 'ev', entity_key: 'ev_charge_power', reverse: false, container: 'ev', pathKey: 'ev' },
+            { id: 'ev', type: 'ev', entity_key: 'ev_charge_power', reverse: false, container: 'ev' },
             { id: 'grid-import', type: 'grid-import', entity_key: 'grid_import_power', reverse: true, container: 'primary', pathKey: 'primary' },
             { id: 'grid-export', type: 'grid-export', entity_key: 'grid_export_power', reverse: false, container: 'out', pathKey: 'out' },
             
@@ -60,7 +56,7 @@ class PowerFlowCard extends LitElement {
             primary: this.shadowRoot.getElementById('svg-container-primary'),
             out: this.shadowRoot.getElementById('svg-container-out')
         };
-        this.loadInlinedSVGs(); // Replaced loadAllSVGs
+        this.loadAllSVGs();
         this.isInitialized = true;
     }
 
@@ -100,7 +96,7 @@ class PowerFlowCard extends LitElement {
         const colorMap = {
             'solar': 'gold',
             'grid-import': 'dodgerblue',
-            'grid-export': 'limegreen', 
+            'grid-export': 'limegreen', // <-- Needs 'grid-export' (dash)
             'bat-charge': 'cornflowerblue',
             'ev': 'deepskyblue'
         };
@@ -116,27 +112,48 @@ class PowerFlowCard extends LitElement {
         });
     }
 
-    // NEW FUNCTION: Loads the already-bundled SVG strings
-    loadInlinedSVGs() {
+    async loadSVG(path, containerEl, lineType, isBackground) {
+        try {
+            if (!path) throw new Error(`No SVG path provided for ${lineType}`);
+            
+            const response = await fetch(path);
+            if (!response.ok) throw new Error(`SVG load failed: ${response.status} ${response.statusText}`);
+            
+            const text = await response.text();
+    
+            if (isBackground) {
+                containerEl.innerHTML = text;
+            } else {
+                this.processSVGString(text, containerEl, lineType);
+            }
+        } catch (err) {
+            console.error(`Failed to load SVG for "${lineType}" from path "${path}":`, err);
+            
+            containerEl.innerHTML = `
+                <p style="color:#f99; text-align:center; font-weight:bold;">
+                    Error loading ${lineType} SVG
+                </p>
+            `;
+    
+            throw new Error(`SVG load failed for "${lineType}": ${err.message}`);
+        }
+    }
+
+    loadAllSVGs() {
         this.lineConfig.forEach(cfg => {
-            const contentKey = cfg.pathKey || cfg.type;
-            // The SVG XML content is now in this.svgContents
-            const svgText = this.svgContents[contentKey]; 
+            const pathKey = cfg.pathKey || cfg.type;
+            const path = this.svgPaths[pathKey];
             
             const containerId = cfg.container || cfg.id;
             const container = this.lineContainers[containerId];
             
-            if (!svgText || !container) return; // Skip if content or container is missing
-
-            if (cfg.isBackground) {
-                container.innerHTML = svgText;
-            } else {
-                this.processSVGString(svgText, container, cfg.type);
+            if (path && container) {
+                this.loadSVG(path, container, cfg.type, cfg.isBackground);
             }
         });
     }
 
-    // --- Flow Control Logic (Unchanged) ---
+    // --- Flow Control Logic ---
 
     updateFlow() {
         this.lineConfig.filter(c => c.entity_key).forEach(cfg => {
@@ -163,7 +180,7 @@ class PowerFlowCard extends LitElement {
         });
     }
 
-    // 5. User Configuration (Unchanged)
+    // 5. User Configuration: Defines which entities to use
     setConfig(config) {
         if (!config.entities || Object.keys(config.entities).length === 0) {
             throw new Error('You need to define entities for the power flow diagram.');
@@ -171,7 +188,7 @@ class PowerFlowCard extends LitElement {
         this.config = config;
     }
 
-    // 6. CSS Styling (Unchanged)
+    // 6. CSS Styling (in Lit, this is isolated and efficient)
     static get styles() {
         return css `
             /* Card Container Setup */
@@ -221,21 +238,21 @@ class PowerFlowCard extends LitElement {
             }
 
             @keyframes pulse {
-                0%   { stroke-opacity: 0.6; filter: drop-shadow(0 0 0px rgba(255,255,255,0)); }
-                50%  { stroke-opacity: 1; filter: drop-shadow(0 0 12px rgba(255,255,255,0.3)); }
+                0%   { stroke-opacity: 0.6; filter: drop-shadow(0 0 0px rgba(255,255,255,0)); }
+                50%  { stroke-opacity: 1; filter: drop-shadow(0 0 12px rgba(255,255,255,0.3)); }
                 100% { stroke-opacity: 0.6; filter: drop-shadow(0 0 0px rgba(255,255,255,0)); }
             }
             
             /* Color definitions (these apply classes to the SVG paths) */
-            .solar       { stroke: gold !important; }
+            .solar       { stroke: gold !important; }
             .grid-import { stroke: dodgerblue !important; }
-            .grid-export { stroke: limegreen !important; } 
-            .ev          { stroke: deepskyblue !important; }
-            .bat-charge  { stroke: cornflowerblue !important; }
+            .grid-export { stroke: limegreen !important; } /* <-- Needs 'grid-export' (dash) */
+            .ev          { stroke: deepskyblue !important; }
+            .bat-charge  { stroke: cornflowerblue !important; }
         `;
     }
 
-    // 7. HTML Template (Unchanged)
+    // 7. HTML Template (The card structure)
     render() {
         return html `
             <ha-card header="${this.config.name || 'Power Flow Diagram'}">

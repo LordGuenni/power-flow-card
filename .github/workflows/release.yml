@@ -1,4 +1,4 @@
-name: Release Custom Card
+name: 🚀 Release Custom Card
 
 on:
   push:
@@ -8,19 +8,21 @@ on:
 
 jobs:
   release:
-    name: Build and Release
+    name: Create GitHub Release
     runs-on: ubuntu-latest
-    
-    # Optional: Add permissions if your project needs to write to the repository for assets
+
+    # The workflow needs 'contents: write' permission to create the release
     permissions:
       contents: write
-      
+
     steps:
-      - name: Checkout Repository
+      - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+
+      # --- Critical Step: Create Release and Upload Asset ---
+      # This action automatically creates the GitHub Release and attaches files.
+      - name: 📦 Create Release and Upload power-flow-card.js
+        uses: softprops/action-gh-release@v2
         with:
           node-version: 20
           cache: 'npm'
@@ -29,6 +31,10 @@ jobs:
         run: npm ci
 
      # --- LINT & TEST ---
+      - name: 🧹 Run Lint Check (and Fix)
+        run: npm run lint -- --fix
+        run: npm run lint 
+
       # --- BUILD STEP: RUN ROLLUP ---
       - name: 🔨 Build Card and Inline Assets
         run: npm run build # This runs Rollup
@@ -38,15 +44,8 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          # This line ensures the release is overwritten if it already exists
-          overwrite: true 
-          
-          # Use the Git tag as the release name
-          tag_name: ${{ github.ref }} 
-          
-          # Ensure you are still attaching your built file
+          # Files now points to the output of the build step!
           files: |
-            dist/power-flow-card.js 
-            
+            dist/power-flow-card.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

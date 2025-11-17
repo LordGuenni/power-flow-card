@@ -2,6 +2,6 @@
   "name": "Power Flow Card",
   "render_readme": false,
   "homeassistant": "2025.10.0",
-  "content_in_root": false,
+  "content_in_root": true,
   "filename": "power-flow-card.js"
 }
