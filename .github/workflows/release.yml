@@ -53,8 +53,8 @@ jobs:
           # This is the crucial part for HACS: attach the final JS file
           # Replace 'power-flow-card.js' with your actual bundled file name
           files: |
-            dist/power-flow-card.js # Your main card file
-            assets/* # This uploads all files inside the assets/ folder
+            dist/power-flow-card.js 
+            assets/*
             
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
