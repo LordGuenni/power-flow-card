@@ -252,26 +252,26 @@ class PowerFlowCard extends LitElement {
   }
 
   // Use Home Assistant's built-in form editor
-  static getConfigForm() {
+    static getConfigForm() {
     return {
       schema: [
         { name: "name", selector: { text: {} } },
-        { name: "entities.solar_power", selector: { entity: {} } },
-        { name: "entities.grid_import_power", selector: { entity: {} } },
-        { name: "entities.grid_export_power", selector: { entity: {} } },
-        { name: "entities.ev_charge_power", selector: { entity: {} } },
-        { name: "entities.battery_charge_power", selector: { entity: {} } },
-        { name: "entities.battery_discharge_power", selector: { entity: {} } },
+        { name: "solar_power", selector: { entity: {} } },
+        { name: "grid_import_power", selector: { entity: {} } },
+        { name: "grid_export_power", selector: { entity: {} } },
+        { name: "ev_charge_power", selector: { entity: {} } },
+        { name: "battery_charge_power", selector: { entity: {} } },
+        { name: "battery_discharge_power", selector: { entity: {} } },
       ],
       computeLabel: (schema) => {
         const map = {
           name: "Card title",
-          "entities.solar_power": "Solar power entity",
-          "entities.grid_import_power": "Grid import entity",
-          "entities.grid_export_power": "Grid export entity",
-          "entities.ev_charge_power": "EV charge entity",
-          "entities.battery_charge_power": "Battery charge entity",
-          "entities.battery_discharge_power": "Battery discharge entity",
+          solar_power: "Solar power entity",
+          grid_import_power: "Grid import entity",
+          grid_export_power: "Grid export entity",
+          ev_charge_power: "EV charge entity",
+          battery_charge_power: "Battery charge entity",
+          battery_discharge_power: "Battery discharge entity",
         };
         return map[schema.name];
       },
