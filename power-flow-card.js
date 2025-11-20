@@ -294,6 +294,7 @@ class PowerFlowCard extends LitElement {
         }
       },
     };
+   }
 
   static get styles() {
     return css`
