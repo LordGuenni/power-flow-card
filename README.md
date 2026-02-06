@@ -36,6 +36,21 @@ entities:
   ev_charge_power: sensor.evcc_garage_charge_power
   battery_charge_power: sensor.sn_3017444296_battery_power_charge_total
   battery_discharge_power: sensor.sn_3017444296_battery_power_discharge_total
+  
+solar_descriptor_enabled: true
+grid_descriptor_enabled: true
+grid_descriptor_label: Grid
+battery_descriptor_label: Battery
+ev_descriptor_label: EV
+battery_descriptor_enabled: false
+solar_descriptor_label: Solar
+ev_descriptor_enabled: true
+home_descriptor_label: Home
+home_descriptor_enabled: true
+solar_descriptor_entity: sensor.sn_3015027172_daily_yield
+ev_descriptor_entity: sensor.sn_3015027172_daily_yield
+home_descriptor_entity: sensor.sn_3015027172_daily_yield
+grid_descriptor_entity: sensor.sn_3015027172_daily_yield
 ```
 
 Configuration editor screenshot:
