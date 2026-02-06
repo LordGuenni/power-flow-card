@@ -398,11 +398,41 @@ class PowerFlowCard extends LitElement {
       .descriptor {
         position: absolute;
         font-size: 12px;
-        font-weight: 500;
         color: var(--secondary-text-color);
         pointer-events: none;
         text-align: center;
         white-space: nowrap;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .descriptor-line {
+        width: 2px;
+        height: 60px;
+        background-color: var(--primary-text-color);
+        opacity: 0.5;
+        flex-shrink: 0;
+      }
+
+      .descriptor-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+      }
+
+      .descriptor-value {
+        font-weight: bold;
+        font-size: 14px;
+        color: var(--primary-text-color);
+      }
+
+      .descriptor-label {
+        font-weight: 500;
+        font-size: 12px;
+        color: var(--secondary-text-color);
       }
 
       .descriptor-solar {
@@ -515,9 +545,15 @@ class PowerFlowCard extends LitElement {
       value = `${state.state} ${unit}`.trim();
     }
 
-    const displayText = value ? `${label} ${value}` : label;
-    
-    return displayText ? html`<div class="descriptor ${className}">${displayText}</div>` : '';
+    return html`
+      <div class="descriptor ${className}">
+        <div class="descriptor-line"></div>
+        <div class="descriptor-text">
+          ${value ? html`<div class="descriptor-value">${value}</div>` : ''}
+          ${label ? html`<div class="descriptor-label">${label}</div>` : ''}
+        </div>
+      </div>
+    `;
   }
 
   // 7. HTML Template (The card structure)
