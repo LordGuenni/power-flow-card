@@ -9,6 +9,9 @@ class PowerFlowCard extends LitElement {
       config: {
         type: Object,
       }, // User configuration (entities)
+      descriptors: {
+        type: Object,
+      }, // Optional descriptive labels
     };
   }
 
@@ -251,6 +254,7 @@ class PowerFlowCard extends LitElement {
       );
     }
     this.config = config;
+    this.descriptors = config.descriptors || {};
   }
 
   static getConfigForm() {
@@ -271,6 +275,18 @@ class PowerFlowCard extends LitElement {
             { name: "battery_discharge_power", selector: { entity: {} } },
           ],
         },
+        {
+          type: "grid",
+          name: "descriptors",
+          flatten: false,
+          schema: [
+            { name: "solar", selector: { text: {} } },
+            { name: "grid", selector: { text: {} } },
+            { name: "battery", selector: { text: {} } },
+            { name: "ev", selector: { text: {} } },
+            { name: "home", selector: { text: {} } },
+          ],
+        },
       ],
       computeLabel: (schema) => {
         const map = {
@@ -288,6 +304,16 @@ class PowerFlowCard extends LitElement {
           ev_charge_power: "EV charge entity",
           battery_charge_power: "Battery charge entity",
           battery_discharge_power: "Battery discharge entity",
+          "descriptors.solar": "Solar descriptor",
+          "descriptors.grid": "Grid descriptor",
+          "descriptors.battery": "Battery descriptor",
+          "descriptors.ev": "EV descriptor",
+          "descriptors.home": "Home descriptor",
+          solar: "Solar descriptor",
+          grid: "Grid descriptor",
+          battery: "Battery descriptor",
+          ev: "EV descriptor",
+          home: "Home descriptor",
         };
         return map[schema.name];
       },
@@ -327,6 +353,47 @@ class PowerFlowCard extends LitElement {
       /* Background Styling */
       #svg-container-bg svg {
         opacity: 0.5;
+      }
+
+      /* Descriptor Labels */
+      .descriptor {
+        position: absolute;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+        pointer-events: none;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .descriptor-solar {
+        top: 15%;
+        left: 20%;
+        transform: translateX(-50%);
+      }
+
+      .descriptor-grid {
+        top: 50%;
+        right: 8%;
+        transform: translateY(-50%);
+      }
+
+      .descriptor-battery {
+        bottom: 25%;
+        left: 20%;
+        transform: translateX(-50%);
+      }
+
+      .descriptor-ev {
+        bottom: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .descriptor-home {
+        top: 50%;
+        left: 8%;
+        transform: translateY(-50%);
       }
 
       /* Animated Line Styles */
@@ -396,6 +463,8 @@ class PowerFlowCard extends LitElement {
 
   // 7. HTML Template (The card structure)
   render() {
+    const descriptors = this.descriptors || {};
+    
     return html`
       <ha-card header="${this.config.name || "Power Flow Diagram"}">
         <div id="svg-overlay">
@@ -405,6 +474,13 @@ class PowerFlowCard extends LitElement {
           <div id="svg-container-ev"></div>
           <div id="svg-container-primary"></div>
           <div id="svg-container-out"></div>
+          
+          <!-- Descriptor Labels -->
+          ${descriptors.solar ? html`<div class="descriptor descriptor-solar">${descriptors.solar}</div>` : ''}
+          ${descriptors.grid ? html`<div class="descriptor descriptor-grid">${descriptors.grid}</div>` : ''}
+          ${descriptors.battery ? html`<div class="descriptor descriptor-battery">${descriptors.battery}</div>` : ''}
+          ${descriptors.ev ? html`<div class="descriptor descriptor-ev">${descriptors.ev}</div>` : ''}
+          ${descriptors.home ? html`<div class="descriptor descriptor-home">${descriptors.home}</div>` : ''}
         </div>
       </ha-card>
     `;

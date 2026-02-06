@@ -13,7 +13,7 @@
     "custom-card",
     "frontend"
   ],
-  "author": "Your Name",
+  "author": "Florian Stamer",
   "license": "MIT",
   "scripts": {
     "lint": "eslint . --ext .js",
