@@ -381,7 +381,7 @@ class PowerFlowCard extends LitElement {
         padding: 16px;
         box-sizing: border-box;
       }
-      #svg-overlay > div {
+      #svg-overlay > div:not(.descriptor) {
         position: absolute;
         inset: 0;
         display: flex;
