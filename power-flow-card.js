@@ -410,7 +410,6 @@ class PowerFlowCard extends LitElement {
 
       .descriptor-line {
         width: 2px;
-        height: 60px;
         background-color: var(--primary-text-color);
         opacity: 0.5;
         flex-shrink: 0;
@@ -436,33 +435,48 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-solar {
-        top: 15%;
-        left: 20%;
-        transform: translateX(-50%);
+        top: 0%;
+        left: 55%;
+      }
+
+      .descriptor-solar .descriptor-line {
+        height: 10%;
       }
 
       .descriptor-grid {
-        top: 50%;
-        right: 8%;
-        transform: translateY(-50%);
+        top: 0%;
+        left: 15%;
+      }
+
+      .descriptor-grid .descriptor-line {
+        height: 35%;
       }
 
       .descriptor-battery {
-        bottom: 25%;
+        top: 0%;
         left: 20%;
-        transform: translateX(-50%);
+      }
+
+      .descriptor-battery .descriptor-line {
+        height: 25%;
       }
 
       .descriptor-ev {
-        bottom: 15%;
-        left: 50%;
-        transform: translateX(-50%);
+        top: 0%;
+        left: 35%;
+      }
+
+      .descriptor-ev .descriptor-line {
+        height: 28%;
       }
 
       .descriptor-home {
-        top: 50%;
-        left: 8%;
-        transform: translateY(-50%);
+        top: 0%;
+        left: 78%;
+      }
+
+      .descriptor-home .descriptor-line {
+        height: 30%;
       }
 
       /* Animated Line Styles */
