@@ -440,7 +440,7 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-solar .descriptor-line {
-        height: 10%;
+        height: 5vh;
       }
 
       .descriptor-grid {
@@ -449,7 +449,7 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-grid .descriptor-line {
-        height: 35%;
+        height: 15vh;
       }
 
       .descriptor-battery {
@@ -458,7 +458,7 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-battery .descriptor-line {
-        height: 25%;
+        height: 10vh;
       }
 
       .descriptor-ev {
@@ -467,7 +467,7 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-ev .descriptor-line {
-        height: 28%;
+        height: 12vh;
       }
 
       .descriptor-home {
@@ -476,7 +476,7 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-home .descriptor-line {
-        height: 30%;
+        height: 13vh;
       }
 
       /* Animated Line Styles */
