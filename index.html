@@ -74,6 +74,47 @@
       body {
         background-color: #333;
       }
+
+      /* Descriptor Labels */
+      .descriptor {
+        position: absolute;
+        font-size: 12px;
+        font-weight: 500;
+        color: #999;
+        pointer-events: none;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .descriptor-solar {
+        top: 15%;
+        left: 20%;
+        transform: translateX(-50%);
+      }
+
+      .descriptor-grid {
+        top: 50%;
+        right: 8%;
+        transform: translateY(-50%);
+      }
+
+      .descriptor-battery {
+        bottom: 25%;
+        left: 20%;
+        transform: translateX(-50%);
+      }
+
+      .descriptor-ev {
+        bottom: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .descriptor-home {
+        top: 50%;
+        left: 8%;
+        transform: translateY(-50%);
+      }
     </style>
   </head>
   <body>
@@ -102,6 +143,13 @@
         id="svg-container-out"
         style="position: absolute; inset: 0; display: flex; justify-content: center; align-items: center"
       ></div>
+      
+      <!-- Descriptor Labels -->
+      <div class="descriptor descriptor-solar">Solarzellen</div>
+      <div class="descriptor descriptor-grid">Netz</div>
+      <div class="descriptor descriptor-battery">Battery</div>
+      <div class="descriptor descriptor-ev">EV</div>
+      <div class="descriptor descriptor-home">Home</div>
     </div>
 
     <script>

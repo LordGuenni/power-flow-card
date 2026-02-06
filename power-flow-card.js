@@ -9,9 +9,6 @@ class PowerFlowCard extends LitElement {
       config: {
         type: Object,
       }, // User configuration (entities)
-      descriptors: {
-        type: Object,
-      }, // Optional descriptive labels
     };
   }
 
@@ -254,7 +251,6 @@ class PowerFlowCard extends LitElement {
       );
     }
     this.config = config;
-    this.descriptors = config.descriptors || {};
   }
 
   static getConfigForm() {
@@ -276,15 +272,53 @@ class PowerFlowCard extends LitElement {
           ],
         },
         {
-          type: "grid",
-          name: "descriptors",
-          flatten: false,
+          type: "expandable",
+          name: "",
+          title: "Solar Descriptor",
           schema: [
-            { name: "solar", selector: { text: {} } },
-            { name: "grid", selector: { text: {} } },
-            { name: "battery", selector: { text: {} } },
-            { name: "ev", selector: { text: {} } },
-            { name: "home", selector: { text: {} } },
+            { name: "solar_descriptor_enabled", selector: { boolean: {} } },
+            { name: "solar_descriptor_label", selector: { text: {} } },
+            { name: "solar_descriptor_entity", selector: { entity: {} } },
+          ],
+        },
+        {
+          type: "expandable",
+          name: "",
+          title: "Grid Descriptor",
+          schema: [
+            { name: "grid_descriptor_enabled", selector: { boolean: {} } },
+            { name: "grid_descriptor_label", selector: { text: {} } },
+            { name: "grid_descriptor_entity", selector: { entity: {} } },
+          ],
+        },
+        {
+          type: "expandable",
+          name: "",
+          title: "Battery Descriptor",
+          schema: [
+            { name: "battery_descriptor_enabled", selector: { boolean: {} } },
+            { name: "battery_descriptor_label", selector: { text: {} } },
+            { name: "battery_descriptor_entity", selector: { entity: {} } },
+          ],
+        },
+        {
+          type: "expandable",
+          name: "",
+          title: "EV Descriptor",
+          schema: [
+            { name: "ev_descriptor_enabled", selector: { boolean: {} } },
+            { name: "ev_descriptor_label", selector: { text: {} } },
+            { name: "ev_descriptor_entity", selector: { entity: {} } },
+          ],
+        },
+        {
+          type: "expandable",
+          name: "",
+          title: "Home Descriptor",
+          schema: [
+            { name: "home_descriptor_enabled", selector: { boolean: {} } },
+            { name: "home_descriptor_label", selector: { text: {} } },
+            { name: "home_descriptor_entity", selector: { entity: {} } },
           ],
         },
       ],
@@ -304,16 +338,21 @@ class PowerFlowCard extends LitElement {
           ev_charge_power: "EV charge entity",
           battery_charge_power: "Battery charge entity",
           battery_discharge_power: "Battery discharge entity",
-          "descriptors.solar": "Solar descriptor",
-          "descriptors.grid": "Grid descriptor",
-          "descriptors.battery": "Battery descriptor",
-          "descriptors.ev": "EV descriptor",
-          "descriptors.home": "Home descriptor",
-          solar: "Solar descriptor",
-          grid: "Grid descriptor",
-          battery: "Battery descriptor",
-          ev: "EV descriptor",
-          home: "Home descriptor",
+          solar_descriptor_enabled: "Enable solar descriptor",
+          solar_descriptor_label: "Label",
+          solar_descriptor_entity: "Entity (e.g., daily kWh)",
+          grid_descriptor_enabled: "Enable grid descriptor",
+          grid_descriptor_label: "Label",
+          grid_descriptor_entity: "Entity (e.g., daily kWh)",
+          battery_descriptor_enabled: "Enable battery descriptor",
+          battery_descriptor_label: "Label",
+          battery_descriptor_entity: "Entity (e.g., daily kWh)",
+          ev_descriptor_enabled: "Enable EV descriptor",
+          ev_descriptor_label: "Label",
+          ev_descriptor_entity: "Entity (e.g., daily kWh)",
+          home_descriptor_enabled: "Enable home descriptor",
+          home_descriptor_label: "Label",
+          home_descriptor_entity: "Entity (e.g., daily kWh)",
         };
         return map[schema.name];
       },
@@ -461,10 +500,28 @@ class PowerFlowCard extends LitElement {
     `;
   }
 
+  // Helper method to render a descriptor with label and value
+  renderDescriptor(type, className) {
+    const enabled = this.config[`${type}_descriptor_enabled`];
+    if (!enabled) return '';
+
+    const label = this.config[`${type}_descriptor_label`] || '';
+    const entityId = this.config[`${type}_descriptor_entity`];
+    
+    let value = '';
+    if (entityId && this._hass && this._hass.states[entityId]) {
+      const state = this._hass.states[entityId];
+      const unit = state.attributes.unit_of_measurement || '';
+      value = `${state.state} ${unit}`.trim();
+    }
+
+    const displayText = value ? `${label} ${value}` : label;
+    
+    return displayText ? html`<div class="descriptor ${className}">${displayText}</div>` : '';
+  }
+
   // 7. HTML Template (The card structure)
   render() {
-    const descriptors = this.descriptors || {};
-    
     return html`
       <ha-card header="${this.config.name || "Power Flow Diagram"}">
         <div id="svg-overlay">
@@ -476,11 +533,11 @@ class PowerFlowCard extends LitElement {
           <div id="svg-container-out"></div>
           
           <!-- Descriptor Labels -->
-          ${descriptors.solar ? html`<div class="descriptor descriptor-solar">${descriptors.solar}</div>` : ''}
-          ${descriptors.grid ? html`<div class="descriptor descriptor-grid">${descriptors.grid}</div>` : ''}
-          ${descriptors.battery ? html`<div class="descriptor descriptor-battery">${descriptors.battery}</div>` : ''}
-          ${descriptors.ev ? html`<div class="descriptor descriptor-ev">${descriptors.ev}</div>` : ''}
-          ${descriptors.home ? html`<div class="descriptor descriptor-home">${descriptors.home}</div>` : ''}
+          ${this.renderDescriptor('solar', 'descriptor-solar')}
+          ${this.renderDescriptor('grid', 'descriptor-grid')}
+          ${this.renderDescriptor('battery', 'descriptor-battery')}
+          ${this.renderDescriptor('ev', 'descriptor-ev')}
+          ${this.renderDescriptor('home', 'descriptor-home')}
         </div>
       </ha-card>
     `;

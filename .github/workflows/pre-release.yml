@@ -1,0 +1,51 @@
+name: Pre-Release (Beta)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Beta version number (e.g., 1.2.0)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  pre-release:
+    name: Create Beta Pre-Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create Beta Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ github.event.inputs.version }}-beta" -m "Beta Release v${{ github.event.inputs.version }}"
+          git push origin "v${{ github.event.inputs.version }}-beta"
+
+      - name: Create Pre-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}-beta
+          name: "Beta Release v${{ github.event.inputs.version }}"
+          draft: false
+          prerelease: true
+          body: |
+            ## Beta Pre-Release v${{ github.event.inputs.version }}
+            
+            This is a pre-release version for testing purposes.
+            
+            ### Warning
+            This version may contain experimental features and bugs.
+            
+            ### Installation
+            Download `power-flow-card.js` and place it in your `www` folder.
+            
+            ### Found a bug?
+            Please report issues in the issue tracker.
+          files: |
+            power-flow-card.js
