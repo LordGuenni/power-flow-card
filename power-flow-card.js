@@ -449,7 +449,7 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-grid .descriptor-line {
-        height: 15vh;
+        height: 25vh;
       }
 
       .descriptor-battery {
@@ -467,7 +467,7 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-ev .descriptor-line {
-        height: 12vh;
+        height: 16vh;
       }
 
       .descriptor-home {
