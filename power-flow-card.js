@@ -123,16 +123,6 @@ class PowerFlowCard extends LitElement {
 
     this.ensureGlow(svgEl);
 
-    const colorMap = {
-      solar: "gold",
-      "grid-import": "dodgerblue",
-      "grid-export": "limegreen",
-      "bat-charge": "cornflowerblue",
-      ev: "deepskyblue",
-    };
-
-    const desiredColor = colorMap[lineType] || "red";
-
     svgEl
       .querySelectorAll("path, circle, rect, line, polyline, polygon")
       .forEach((el) => {
@@ -140,9 +130,8 @@ class PowerFlowCard extends LitElement {
           return;
         }
         el.classList.add("anim-line", lineType);
-        el.setAttribute("stroke", desiredColor);
-        el.style.setProperty("stroke", desiredColor, "important");
-        el.classList.add("flow-off");
+        el.removeAttribute("stroke");
+        el.style.removeProperty("stroke");
       });
   }
 
@@ -527,19 +516,27 @@ class PowerFlowCard extends LitElement {
 
       /* Color definitions (these apply classes to the SVG paths) */
       .solar {
-        stroke: gold !important;
+        stroke: var(--energy-solar-color, gold) !important;
       }
+      
       .grid-import {
-        stroke: dodgerblue !important;
+        stroke: var(--energy-grid-consumption-color, dodgerblue) !important;
       }
+      
       .grid-export {
-        stroke: limegreen !important;
-      } /* <-- Needs 'grid-export' (dash) */
-      .ev {
-        stroke: deepskyblue !important;
+        stroke: var(--energy-grid-return-color, limegreen) !important;
       }
+      
       .bat-charge {
-        stroke: cornflowerblue !important;
+        stroke: var(--energy-battery-charge-color, cornflowerblue) !important;
+      }
+      
+      .bat-discharge {
+         stroke: var(--energy-battery-discharge-color, deepskyblue) !important;
+      }
+
+      .ev {
+        stroke: var(--energy-car-color, deepskyblue) !important;
       }
     `;
   }
