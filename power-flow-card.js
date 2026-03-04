@@ -470,17 +470,15 @@ class PowerFlowCard extends LitElement {
 
       /* Animated Line Styles */
       .anim-line {
-        stroke-dasharray: 20 15;
-        animation:
-          dash-move 6s linear infinite,
-          pulse 5s ease-in-out infinite alternate;
-        filter: url(#glow);
         stroke-width: 5px;
-        --dash-dir: -200;
+        stroke-linecap: round;
+        filter: url(#glow);
+        animation: flow-shimmer 2s linear infinite;
+        --flow-direction: 1;
       }
 
       .reverse-flow {
-        --dash-dir: 200;
+        --flow-direction: -1;
       }
 
       /* Animation State Controls */
@@ -493,14 +491,10 @@ class PowerFlowCard extends LitElement {
         opacity: 0.15 !important;
       }
 
-      @keyframes dash-move {
-        to {
-          stroke-dashoffset: var(--dash-dir);
-        }
-      }
-
-      @keyframes pulse {
+      @keyframes flow-shimmer {
         0% {
+          stroke-dasharray: 0 100%;
+          stroke-dashoffset: calc(var(--flow-direction) * 200%);
           stroke-opacity: 0.6;
           filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
         }
@@ -509,6 +503,8 @@ class PowerFlowCard extends LitElement {
           filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
         }
         100% {
+          stroke-dasharray: 0 100%;
+          stroke-dashoffset: calc(var(--flow-direction) * -200%);
           stroke-opacity: 0.6;
           filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
         }
