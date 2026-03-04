@@ -493,7 +493,7 @@ class PowerFlowCard extends LitElement {
       }
       .flow-off {
         animation-play-state: paused !important;
-        opacity: 0.15 !important;
+        opacity: 0 !important;
       }
 
       @keyframes flow-pulse {
