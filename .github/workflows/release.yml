@@ -1,14 +1,22 @@
-name: 🚀 Release Custom Card
+name: 🚀 Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version number (e.g., 1.2.0)'
+        required: true
+        default: '1.0.0'
+      description:
+        description: 'Release description/changelog'
+        required: false
+        default: 'See commit history for changes in this release.'
 
 jobs:
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
 
-    # The workflow needs 'contents: write' permission to create the release
     permissions:
       contents: write
 
@@ -16,17 +24,32 @@ jobs:
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
 
-      # --- Critical Step: Create Release and Upload Asset ---
-      # This action automatically creates the GitHub Release and attaches files.
-      - name: 📦 Create Release and Upload power-flow-card.js
+      - name: 🏷️ Create Release Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ github.event.inputs.version }}" -m "Release v${{ github.event.inputs.version }}"
+          git push origin "v${{ github.event.inputs.version }}"
+
+      - name: 📦 Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
-          # Hardcode the tag name for testing purposes.
-          tag_name: v1
-          # If you want to force it to always be a draft:
+          tag_name: v${{ github.event.inputs.version }}
+          name: "Release v${{ github.event.inputs.version }}"
           draft: false
           prerelease: false
-          # You can also set a name for the release (optional)
-          name: Release v1 - Test
+          body: |
+            ## Release v${{ github.event.inputs.version }}
+            
+            ### Changes
+            ${{ github.event.inputs.description }}
+            
+            ### Installation
+            1. Download `power-flow-card.js`
+            2. Place it in your Home Assistant `www` folder
+            3. Add the resource in your Lovelace dashboard configuration
+            
+            ### Documentation
+            See the [README](https://github.com/${{ github.repository }}/blob/main/README.md) for usage instructions.
           files: |
             power-flow-card.js
