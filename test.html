@@ -36,7 +36,7 @@
 
       label {
         display: inline-block;
-        width: 150px;
+        width: 200px;
         font-weight: bold;
       }
 
@@ -47,6 +47,12 @@
         border: 1px solid #555;
         color: #fff;
         border-radius: 4px;
+      }
+
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
       }
 
       button {
@@ -65,6 +71,14 @@
 
       power-flow-card {
         display: block;
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #4facfe;
       }
     </style>
   </head>
@@ -98,7 +112,32 @@
           <label>EV Charge:</label>
           <input type="number" id="ev-charge" value="7000" step="100" />
         </div>
+
+        <div class="section-title">Animation Speed Settings</div>
+        
+        <div class="control-group">
+          <label>Enable Dynamic Speed:</label>
+          <input type="checkbox" id="dynamic-speed" checked />
+        </div>
+        <div class="control-group">
+          <label>Min Speed (seconds):</label>
+          <input type="number" id="min-speed" value="5" step="0.5" min="0.5" />
+        </div>
+        <div class="control-group">
+          <label>Max Speed (seconds):</label>
+          <input type="number" id="max-speed" value="1" step="0.1" min="0.1" />
+        </div>
+        <div class="control-group">
+          <label>Min Power (W):</label>
+          <input type="number" id="min-power" value="100" step="100" />
+        </div>
+        <div class="control-group">
+          <label>Max Power (W):</label>
+          <input type="number" id="max-power" value="10000" step="100" />
+        </div>
+
         <button onclick="updateValues()">Update Values</button>
+        <button onclick="updateConfig()">Update Config</button>
         <button onclick="startDemo()">Start Demo</button>
         <button onclick="stopDemo()">Stop Demo</button>
       </div>
@@ -140,9 +179,14 @@
       };
 
       // Card configuration
-      const config = {
+      let config = {
         name: 'Power Flow Test',
         threshold: 10,
+        dynamic_speed_enabled: true,
+        min_flow_speed: 5,
+        max_flow_speed: 1,
+        min_power_threshold: 100,
+        max_power_threshold: 10000,
         entities: {
           solar_power: 'sensor.solar_power',
           grid_import_power: 'sensor.grid_import_power',
@@ -179,6 +223,23 @@
         
         // Trigger update
         card.hass = { ...mockHass };
+      };
+
+      window.updateConfig = function() {
+        config.dynamic_speed_enabled = document.getElementById('dynamic-speed').checked;
+        config.min_flow_speed = parseFloat(document.getElementById('min-speed').value);
+        config.max_flow_speed = parseFloat(document.getElementById('max-speed').value);
+        config.min_power_threshold = parseFloat(document.getElementById('min-power').value);
+        config.max_power_threshold = parseFloat(document.getElementById('max-power').value);
+        
+        card.setConfig({ ...config });
+        
+        // Force immediate update of flow to apply new speed settings
+        setTimeout(() => {
+          card.hass = { ...mockHass };
+        }, 10);
+        
+        console.log('Config updated:', config);
       };
 
       let demoInterval;

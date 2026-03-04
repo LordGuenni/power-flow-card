@@ -225,10 +225,29 @@ class PowerFlowCard extends LitElement {
         const lines = container.querySelectorAll(".anim-line");
         const isActive = Math.abs(value) > threshold;
 
+        let animationDuration = 3; // default speed
+        
+        // Speed Control by Setting min speed and max Power thresholds as well as min and max flow speed
+        if (this.config.dynamic_speed_enabled !== false) {
+          // Higher power = faster animation (shorter duration)
+          const minSpeed = this.config.min_flow_speed || 5; 
+          const maxSpeed = this.config.max_flow_speed || 1; 
+          const minPower = this.config.min_power_threshold || 100; 
+          const maxPower = this.config.max_power_threshold || 10000;
+          
+          const clampedPower = Math.max(minPower, Math.min(maxPower, Math.abs(value)));
+          const speedRatio = (clampedPower - minPower) / (maxPower - minPower);
+          animationDuration = minSpeed - (speedRatio * (minSpeed - maxSpeed));
+        }
+
         lines.forEach((line) => {
           line.classList.toggle("flow-active", isActive);
           line.classList.toggle("flow-off", !isActive);
           line.classList.toggle("reverse-flow", reverse);
+          
+          if (isActive) {
+            line.style.setProperty('--animation-duration', `${animationDuration}s`);
+          }
         });
       });
   }
@@ -247,6 +266,18 @@ class PowerFlowCard extends LitElement {
       schema: [
         { name: "name", selector: { text: {} } },
         { name: "threshold", type: "float" },
+        {
+          type: "expandable",
+          name: "",
+          title: "Animation Speed Settings",
+          schema: [
+            { name: "dynamic_speed_enabled", selector: { boolean: {} } },
+            { name: "min_flow_speed", type: "float", default: 5 },
+            { name: "max_flow_speed", type: "float", default: 1 },
+            { name: "min_power_threshold", type: "float", default: 100 },
+            { name: "max_power_threshold", type: "float", default: 10000 },
+          ],
+        },
         {
           type: "grid",
           name: "entities",
@@ -327,6 +358,11 @@ class PowerFlowCard extends LitElement {
           ev_charge_power: "EV charge entity",
           battery_charge_power: "Battery charge entity",
           battery_discharge_power: "Battery discharge entity",
+          dynamic_speed_enabled: "Enable dynamic speed based on power",
+          min_flow_speed: "Slowest animation speed (seconds)",
+          max_flow_speed: "Fastest animation speed (seconds)",
+          min_power_threshold: "Power at slowest speed (Watts)",
+          max_power_threshold: "Power at fastest speed (Watts)",
           solar_descriptor_enabled: "Enable solar descriptor",
           solar_descriptor_label: "Label",
           solar_descriptor_entity: "Entity (e.g., daily kWh)",
@@ -475,11 +511,12 @@ class PowerFlowCard extends LitElement {
         filter: url(#glow);
         stroke-dasharray: 100 2000;
         stroke-opacity: 1 !important;
+        --animation-duration: 3s;
       }
 
       .flow-active .anim-line,
       .anim-line.flow-active {
-        animation: flow-pulse 3s ease-in-out infinite !important;
+        animation: flow-pulse var(--animation-duration) ease-in-out infinite !important;
       }
 
       .reverse-flow {
