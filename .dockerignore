@@ -1,0 +1,10 @@
+node_modules
+.git
+.github
+*.zip
+rollup.config.js
+package.json
+package-lock.json
+server.cjs
+.gitignore
+README.md

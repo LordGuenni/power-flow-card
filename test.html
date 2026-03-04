@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Power Flow Card - Local Test</title>
+    <style>
+      body {
+        background-color: #111;
+        color: #fff;
+        font-family: 'Roboto', sans-serif;
+        padding: 20px;
+        margin: 0;
+      }
+      
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .controls {
+        background: #1a1a1a;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .control-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: inline-block;
+        width: 150px;
+        font-weight: bold;
+      }
+
+      input[type="number"] {
+        width: 100px;
+        padding: 5px;
+        background: #333;
+        border: 1px solid #555;
+        color: #fff;
+        border-radius: 4px;
+      }
+
+      button {
+        padding: 8px 16px;
+        background: #0366d6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      button:hover {
+        background: #0256c4;
+      }
+
+      power-flow-card {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Power Flow Card - Local Test</h1>
+      
+      <div class="controls">
+        <h3>Control Power Values (in Watts)</h3>
+        <div class="control-group">
+          <label>Solar Power:</label>
+          <input type="number" id="solar" value="3000" step="100" />
+        </div>
+        <div class="control-group">
+          <label>Grid Import:</label>
+          <input type="number" id="grid-import" value="500" step="100" />
+        </div>
+        <div class="control-group">
+          <label>Grid Export:</label>
+          <input type="number" id="grid-export" value="0" step="100" />
+        </div>
+        <div class="control-group">
+          <label>Battery Charge:</label>
+          <input type="number" id="battery-charge" value="1500" step="100" />
+        </div>
+        <div class="control-group">
+          <label>Battery Discharge:</label>
+          <input type="number" id="battery-discharge" value="0" step="100" />
+        </div>
+        <div class="control-group">
+          <label>EV Charge:</label>
+          <input type="number" id="ev-charge" value="7000" step="100" />
+        </div>
+        <button onclick="updateValues()">Update Values</button>
+        <button onclick="startDemo()">Start Demo</button>
+        <button onclick="stopDemo()">Stop Demo</button>
+      </div>
+
+      <power-flow-card id="card"></power-flow-card>
+    </div>
+
+    <script type="module">
+      import './power-flow-card.js';
+
+      // Mock Home Assistant hass object
+      const mockHass = {
+        states: {
+          'sensor.solar_power': {
+            state: '3000',
+            attributes: { unit_of_measurement: 'W' }
+          },
+          'sensor.grid_import_power': {
+            state: '500',
+            attributes: { unit_of_measurement: 'W' }
+          },
+          'sensor.grid_export_power': {
+            state: '0',
+            attributes: { unit_of_measurement: 'W' }
+          },
+          'sensor.battery_charge_power': {
+            state: '1500',
+            attributes: { unit_of_measurement: 'W' }
+          },
+          'sensor.battery_discharge_power': {
+            state: '0',
+            attributes: { unit_of_measurement: 'W' }
+          },
+          'sensor.ev_charge_power': {
+            state: '7000',
+            attributes: { unit_of_measurement: 'W' }
+          }
+        }
+      };
+
+      // Card configuration
+      const config = {
+        name: 'Power Flow Test',
+        threshold: 10,
+        entities: {
+          solar_power: 'sensor.solar_power',
+          grid_import_power: 'sensor.grid_import_power',
+          grid_export_power: 'sensor.grid_export_power',
+          battery_charge_power: 'sensor.battery_charge_power',
+          battery_discharge_power: 'sensor.battery_discharge_power',
+          ev_charge_power: 'sensor.ev_charge_power'
+        },
+        solar_descriptor_enabled: true,
+        solar_descriptor_label: 'Solar',
+        grid_descriptor_enabled: true,
+        grid_descriptor_label: 'Grid',
+        battery_descriptor_enabled: true,
+        battery_descriptor_label: 'Battery',
+        ev_descriptor_enabled: true,
+        ev_descriptor_label: 'EV',
+        home_descriptor_enabled: true,
+        home_descriptor_label: 'Home'
+      };
+
+      // Initialize card
+      const card = document.getElementById('card');
+      card.setConfig(config);
+      card.hass = mockHass;
+
+      // Make functions globally available
+      window.updateValues = function() {
+        mockHass.states['sensor.solar_power'].state = document.getElementById('solar').value;
+        mockHass.states['sensor.grid_import_power'].state = document.getElementById('grid-import').value;
+        mockHass.states['sensor.grid_export_power'].state = document.getElementById('grid-export').value;
+        mockHass.states['sensor.battery_charge_power'].state = document.getElementById('battery-charge').value;
+        mockHass.states['sensor.battery_discharge_power'].state = document.getElementById('battery-discharge').value;
+        mockHass.states['sensor.ev_charge_power'].state = document.getElementById('ev-charge').value;
+        
+        // Trigger update
+        card.hass = { ...mockHass };
+      };
+
+      let demoInterval;
+      
+      window.startDemo = function() {
+        stopDemo();
+        let counter = 0;
+        demoInterval = setInterval(() => {
+          counter += 0.1;
+          const solar = Math.max(0, 3000 + Math.sin(counter) * 1500);
+          const gridImport = Math.max(0, 500 + Math.cos(counter * 1.3) * 400);
+          const battery = Math.max(0, 1500 + Math.sin(counter * 0.8) * 800);
+          const ev = Math.max(0, 7000 + Math.cos(counter * 0.5) * 2000);
+          
+          document.getElementById('solar').value = Math.round(solar);
+          document.getElementById('grid-import').value = Math.round(gridImport);
+          document.getElementById('battery-charge').value = Math.round(battery);
+          document.getElementById('ev-charge').value = Math.round(ev);
+          
+          updateValues();
+        }, 100);
+      };
+
+      window.stopDemo = function() {
+        if (demoInterval) {
+          clearInterval(demoInterval);
+          demoInterval = null;
+        }
+      };
+    </script>
+  </body>
+</html>

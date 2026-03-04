@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  power-flow-preview:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./test.html:/usr/share/nginx/html/test.html:ro
+      - ./power-flow-card.js:/usr/share/nginx/html/power-flow-card.js:ro
+      - ./src/assets:/usr/share/nginx/html/assets:ro

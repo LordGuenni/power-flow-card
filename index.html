@@ -5,34 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Animated Smart Grid Diagram</title>
     <style>
+      /* Animated Line Styles */
       .anim-line {
-        stroke-width: 5px;
+        stroke-width: 8px;
         stroke-linecap: round;
         filter: url(#glow);
+        stroke-dasharray: 40 40;
         animation: flow-shimmer 2s linear infinite;
         --flow-direction: 1;
+        stroke-opacity: 1 !important;
       }
 
       .reverse-flow {
         --flow-direction: -1;
       }
 
+      /* Animation State Controls */
+      .flow-active {
+        animation-play-state: running !important;
+        opacity: 1 !important;
+      }
+      .flow-off {
+        animation-play-state: paused !important;
+        opacity: 0.15 !important;
+      }
+
       @keyframes flow-shimmer {
         0% {
-          stroke-dasharray: 0 100%;
-          stroke-dashoffset: calc(var(--flow-direction) * 200%);
-          stroke-opacity: 0.6;
-          filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
-        }
-        50% {
-          stroke-opacity: 1;
-          filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
+          stroke-dashoffset: 0;
         }
         100% {
-          stroke-dasharray: 0 100%;
-          stroke-dashoffset: calc(var(--flow-direction) * -200%);
-          stroke-opacity: 0.6;
-          filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+          stroke-dashoffset: calc(var(--flow-direction) * -80);
         }
       }
 

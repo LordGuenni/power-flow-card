@@ -470,15 +470,20 @@ class PowerFlowCard extends LitElement {
 
       /* Animated Line Styles */
       .anim-line {
-        stroke-width: 5px;
+        stroke-width: 6px;
         stroke-linecap: round;
         filter: url(#glow);
-        animation: flow-shimmer 2s linear infinite;
-        --flow-direction: 1;
+        stroke-dasharray: 100 2000;
+        stroke-opacity: 1 !important;
+      }
+
+      .flow-active .anim-line,
+      .anim-line.flow-active {
+        animation: flow-pulse 3s ease-in-out infinite !important;
       }
 
       .reverse-flow {
-        --flow-direction: -1;
+        animation-direction: reverse !important;
       }
 
       /* Animation State Controls */
@@ -491,22 +496,24 @@ class PowerFlowCard extends LitElement {
         opacity: 0.15 !important;
       }
 
-      @keyframes flow-shimmer {
+      @keyframes flow-pulse {
         0% {
-          stroke-dasharray: 0 100%;
-          stroke-dashoffset: calc(var(--flow-direction) * 200%);
-          stroke-opacity: 0.6;
-          filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+          stroke-dashoffset: 2100;
+          stroke-opacity: 0.3;
+          filter: drop-shadow(0 0 2px currentColor);
         }
-        50% {
+        15% {
           stroke-opacity: 1;
-          filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
+          filter: drop-shadow(0 0 8px currentColor);
+        }
+        85% {
+          stroke-opacity: 1;
+          filter: drop-shadow(0 0 8px currentColor);
         }
         100% {
-          stroke-dasharray: 0 100%;
-          stroke-dashoffset: calc(var(--flow-direction) * -200%);
-          stroke-opacity: 0.6;
-          filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+          stroke-dashoffset: 0;
+          stroke-opacity: 0.3;
+          filter: drop-shadow(0 0 2px currentColor);
         }
       }
 
