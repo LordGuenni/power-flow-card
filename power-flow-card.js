@@ -31,7 +31,7 @@ class PowerFlowCard extends LitElement {
         id: "solar",
         type: "solar",
         entity_key: "solar_power",
-        reverse: false,
+        reverse: true,
         container: "solar",
       },
       {
@@ -519,7 +519,7 @@ class PowerFlowCard extends LitElement {
         animation: flow-pulse var(--animation-duration) ease-in-out infinite !important;
       }
 
-      .reverse-flow {
+      .anim-line.reverse-flow {
         animation-direction: reverse !important;
       }
 
