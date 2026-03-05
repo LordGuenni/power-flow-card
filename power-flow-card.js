@@ -31,7 +31,7 @@ class PowerFlowCard extends LitElement {
         id: "solar",
         type: "solar",
         entity_key: "solar_power",
-        reverse: true,
+        reverse: false,
         container: "solar",
       },
       {
