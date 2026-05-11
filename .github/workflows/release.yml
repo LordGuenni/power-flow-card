@@ -3,14 +3,18 @@ name: 🚀 Release
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Release version number (e.g., 1.2.0)'
+      bump_type:
+        description: "Version bump type"
+        type: choice
+        options:
+          - minor
+          - major
         required: true
-        default: '1.0.0'
+        default: minor
       description:
-        description: 'Release description/changelog'
+        description: "Optional extra notes"
         required: false
-        default: 'See commit history for changes in this release.'
+        default: ""
 
 jobs:
   release:
@@ -23,33 +27,88 @@ jobs:
     steps:
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🧮 Compute version and changelog
+        id: prepare_release
+        run: |
+          latest_release_tag="$(git for-each-ref --sort=-creatordate --format='%(refname:short)' refs/tags | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-beta)?$' | head -n1 || true)"
+          latest_version="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' 'v[0-9]*.[0-9]*.[0-9]*-beta' | sed -E 's/^v//' | sed -E 's/-beta$//' | sort -V | tail -n1)"
+          if [ -z "$latest_version" ]; then
+            latest_version="0.0.0"
+          fi
+
+          version="${latest_version}"
+          IFS='.' read -r major minor patch <<< "$version"
+
+          case "${{ github.event.inputs.bump_type }}" in
+            minor)
+              patch=$((patch + 1))
+              ;;
+            major)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            *)
+              echo "Unsupported bump type: ${{ github.event.inputs.bump_type }}"
+              exit 1
+              ;;
+          esac
+
+          next_tag="v${major}.${minor}.${patch}"
+          body_file="$(mktemp)"
+
+          if [ -n "$latest_release_tag" ] && git rev-parse "$latest_release_tag" >/dev/null 2>&1; then
+            commits="$(git log "${latest_release_tag}..HEAD" --pretty='- %s (%h)')"
+            changes_since_label="$latest_release_tag"
+          else
+            commits="$(git log --pretty='- %s (%h)')"
+            changes_since_label="initial commit"
+          fi
+
+          if [ -z "$commits" ]; then
+            commits="- No commits found."
+          fi
+
+          {
+            echo "## Release ${next_tag}"
+            echo
+            echo "### Changes since ${changes_since_label}"
+            echo "${commits}"
+            echo
+            if [ -n "${{ github.event.inputs.description }}" ]; then
+              echo "### Additional notes"
+              echo "${{ github.event.inputs.description }}"
+              echo
+            fi
+            echo "### Manual Installation"
+            echo "1. Download \`power-flow-card.js\`"
+            echo "2. Place it in your Home Assistant \`www\` folder"
+            echo "3. Add the resource in your Lovelace dashboard configuration"
+            echo
+            echo "### Documentation"
+            echo "See the [README](https://github.com/${{ github.repository }}/blob/main/README.md) for usage instructions."
+          } > "$body_file"
+
+          echo "latest_tag=${latest_release_tag}" >> "$GITHUB_OUTPUT"
+          echo "next_tag=${next_tag}" >> "$GITHUB_OUTPUT"
+          echo "body_file=${body_file}" >> "$GITHUB_OUTPUT"
 
       - name: 🏷️ Create Release Tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ github.event.inputs.version }}" -m "Release v${{ github.event.inputs.version }}"
-          git push origin "v${{ github.event.inputs.version }}"
+          git tag -a "${{ steps.prepare_release.outputs.next_tag }}" -m "Release ${{ steps.prepare_release.outputs.next_tag }}"
+          git push origin "${{ steps.prepare_release.outputs.next_tag }}"
 
       - name: 📦 Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          name: "Release v${{ github.event.inputs.version }}"
+          tag_name: ${{ steps.prepare_release.outputs.next_tag }}
+          name: "Release ${{ steps.prepare_release.outputs.next_tag }}"
           draft: false
           prerelease: false
-          body: |
-            ## Release v${{ github.event.inputs.version }}
-            
-            ### Changes
-            ${{ github.event.inputs.description }}
-            
-            ### Manual Installation
-            1. Download `power-flow-card.js`
-            2. Place it in your Home Assistant `www` folder
-            3. Add the resource in your Lovelace dashboard configuration
-            
-            ### Documentation
-            See the [README](https://github.com/${{ github.repository }}/blob/main/README.md) for usage instructions.
+          body_path: ${{ steps.prepare_release.outputs.body_file }}
           files: |
             power-flow-card.js

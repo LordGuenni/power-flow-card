@@ -80,7 +80,7 @@ class PowerFlowCard extends LitElement {
       solar: { lineX: 523, lineY1: 12, lineY2: 137, textX: 537, valueY: 30, labelY: 54 },
       grid: { lineX: 171, lineY1: 12, lineY2: 500, textX: 185, valueY: 30, labelY: 54 },
       battery: { lineX: 672, lineY1: 12, lineY2: 400, textX: 686, valueY: 30, labelY: 54 },
-      ev: { lineX: 399, lineY1: 12, lineY2: 315, textX: 413, valueY: 30, labelY: 54 },
+      ev: { lineX: 365, lineY1: 12, lineY2: 315, textX: 379, valueY: 30, labelY: 54 },
       home: { lineX: 888, lineY1: 12, lineY2: 255, textX: 902, valueY: 30, labelY: 54 },
     };
   }
@@ -483,13 +483,13 @@ class PowerFlowCard extends LitElement {
 
       .descriptor-value {
         fill: var(--primary-text-color, #ffffff);
-        font-size: 14px;
+        font-size: 28px;
         font-weight: bold;
       }
 
       .descriptor-label {
         fill: var(--secondary-text-color, #9aa0a6);
-        font-size: 12px;
+        font-size: 24px;
         font-weight: 500;
       }
 
