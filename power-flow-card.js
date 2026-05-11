@@ -92,7 +92,9 @@ class PowerFlowCard extends LitElement {
   }
 
   set hass(hass) {
+    const oldHass = this._hass;
     this._hass = hass;
+    this.requestUpdate("hass", oldHass);
     if (this.isInitialized) {
       this.updateFlow();
     }
@@ -279,6 +281,19 @@ class PowerFlowCard extends LitElement {
           ],
         },
         {
+          type: "expandable",
+          name: "",
+          title: "Line Colors (Optional)",
+          schema: [
+            { name: "solar_line_color", selector: { text: {} } },
+            { name: "grid_import_line_color", selector: { text: {} } },
+            { name: "grid_export_line_color", selector: { text: {} } },
+            { name: "battery_charge_line_color", selector: { text: {} } },
+            { name: "battery_discharge_line_color", selector: { text: {} } },
+            { name: "ev_line_color", selector: { text: {} } },
+          ],
+        },
+        {
           type: "grid",
           name: "entities",
           flatten: false,
@@ -363,6 +378,12 @@ class PowerFlowCard extends LitElement {
           max_flow_speed: "Fastest animation speed (seconds)",
           min_power_threshold: "Power at slowest speed (Watts)",
           max_power_threshold: "Power at fastest speed (Watts)",
+          solar_line_color: "Solar line color (hex/CSS color)",
+          grid_import_line_color: "Grid import line color (hex/CSS color)",
+          grid_export_line_color: "Grid export line color (hex/CSS color)",
+          battery_charge_line_color: "Battery charge line color (hex/CSS color)",
+          battery_discharge_line_color: "Battery discharge line color (hex/CSS color)",
+          ev_line_color: "EV line color (hex/CSS color)",
           solar_descriptor_enabled: "Enable solar descriptor",
           solar_descriptor_label: "Label",
           solar_descriptor_entity: "Entity (e.g., daily kWh)",
@@ -390,6 +411,25 @@ class PowerFlowCard extends LitElement {
         }
       },
     };
+  }
+
+  getColorStyleVars() {
+    const colorMap = [
+      ["solar_line_color", "--pfc-solar-color"],
+      ["grid_import_line_color", "--pfc-grid-import-color"],
+      ["grid_export_line_color", "--pfc-grid-export-color"],
+      ["battery_charge_line_color", "--pfc-battery-charge-color"],
+      ["battery_discharge_line_color", "--pfc-battery-discharge-color"],
+      ["ev_line_color", "--pfc-ev-color"],
+    ];
+
+    return colorMap
+      .map(([configKey, cssVar]) => {
+        const value = this.config?.[configKey];
+        return value ? `${cssVar}: ${value};` : "";
+      })
+      .filter(Boolean)
+      .join(" ");
   }
 
   static get styles() {
@@ -556,27 +596,27 @@ class PowerFlowCard extends LitElement {
 
       /* Color definitions (these apply classes to the SVG paths) */
       .solar {
-        stroke: var(--energy-solar-color, gold) !important;
+        stroke: var(--pfc-solar-color, var(--energy-solar-color, gold)) !important;
       }
       
       .grid-import {
-        stroke: var(--energy-grid-consumption-color, dodgerblue) !important;
+        stroke: var(--pfc-grid-import-color, var(--energy-grid-consumption-color, dodgerblue)) !important;
       }
       
       .grid-export {
-        stroke: var(--energy-grid-return-color, limegreen) !important;
+        stroke: var(--pfc-grid-export-color, var(--energy-grid-return-color, limegreen)) !important;
       }
       
       .bat-charge {
-        stroke: var(--energy-battery-charge-color, cornflowerblue) !important;
+        stroke: var(--pfc-battery-charge-color, var(--energy-battery-charge-color, cornflowerblue)) !important;
       }
       
       .bat-discharge {
-         stroke: var(--energy-battery-discharge-color, deepskyblue) !important;
+         stroke: var(--pfc-battery-discharge-color, var(--energy-battery-discharge-color, deepskyblue)) !important;
       }
 
       .ev {
-        stroke: var(--energy-car-color, deepskyblue) !important;
+        stroke: var(--pfc-ev-color, var(--energy-car-color, deepskyblue)) !important;
       }
     `;
   }
@@ -609,8 +649,9 @@ class PowerFlowCard extends LitElement {
 
   // 7. HTML Template (The card structure)
   render() {
+    const colorStyle = this.getColorStyleVars();
     return html`
-      <ha-card header="${this.config.name || "Power Flow Diagram"}">
+      <ha-card header="${this.config.name || "Power Flow Diagram"}" style="${colorStyle}">
         <div id="svg-overlay">
           <div id="svg-container-bg"></div>
           <div id="svg-container-solar"></div>

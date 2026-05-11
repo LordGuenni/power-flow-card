@@ -136,6 +136,33 @@
           <input type="number" id="max-power" value="10000" step="100" />
         </div>
 
+        <div class="section-title">Line Colors</div>
+
+        <div class="control-group">
+          <label>Solar Line Color:</label>
+          <input type="text" id="solar-line-color" value="#ffd54f" />
+        </div>
+        <div class="control-group">
+          <label>Grid Import Color:</label>
+          <input type="text" id="grid-import-line-color" value="#4fc3f7" />
+        </div>
+        <div class="control-group">
+          <label>Grid Export Color:</label>
+          <input type="text" id="grid-export-line-color" value="#66bb6a" />
+        </div>
+        <div class="control-group">
+          <label>Battery Charge Color:</label>
+          <input type="text" id="battery-charge-line-color" value="#64b5f6" />
+        </div>
+        <div class="control-group">
+          <label>Battery Discharge Color:</label>
+          <input type="text" id="battery-discharge-line-color" value="#29b6f6" />
+        </div>
+        <div class="control-group">
+          <label>EV Line Color:</label>
+          <input type="text" id="ev-line-color" value="#26c6da" />
+        </div>
+
         <button onclick="updateValues()">Update Values</button>
         <button onclick="updateConfig()">Update Config</button>
         <button onclick="startDemo()">Start Demo</button>
@@ -187,6 +214,12 @@
         max_flow_speed: 1,
         min_power_threshold: 100,
         max_power_threshold: 10000,
+        solar_line_color: '#ffd54f',
+        grid_import_line_color: '#4fc3f7',
+        grid_export_line_color: '#66bb6a',
+        battery_charge_line_color: '#64b5f6',
+        battery_discharge_line_color: '#29b6f6',
+        ev_line_color: '#26c6da',
         entities: {
           solar_power: 'sensor.solar_power',
           grid_import_power: 'sensor.grid_import_power',
@@ -197,14 +230,19 @@
         },
         solar_descriptor_enabled: true,
         solar_descriptor_label: 'Solar',
+        solar_descriptor_entity: 'sensor.solar_power',
         grid_descriptor_enabled: true,
         grid_descriptor_label: 'Grid',
+        grid_descriptor_entity: 'sensor.grid_import_power',
         battery_descriptor_enabled: true,
         battery_descriptor_label: 'Battery',
+        battery_descriptor_entity: 'sensor.battery_charge_power',
         ev_descriptor_enabled: true,
         ev_descriptor_label: 'EV',
+        ev_descriptor_entity: 'sensor.ev_charge_power',
         home_descriptor_enabled: true,
-        home_descriptor_label: 'Home'
+        home_descriptor_label: 'Home',
+        home_descriptor_entity: 'sensor.grid_export_power'
       };
 
       // Initialize card
@@ -231,6 +269,12 @@
         config.max_flow_speed = parseFloat(document.getElementById('max-speed').value);
         config.min_power_threshold = parseFloat(document.getElementById('min-power').value);
         config.max_power_threshold = parseFloat(document.getElementById('max-power').value);
+        config.solar_line_color = document.getElementById('solar-line-color').value;
+        config.grid_import_line_color = document.getElementById('grid-import-line-color').value;
+        config.grid_export_line_color = document.getElementById('grid-export-line-color').value;
+        config.battery_charge_line_color = document.getElementById('battery-charge-line-color').value;
+        config.battery_discharge_line_color = document.getElementById('battery-discharge-line-color').value;
+        config.ev_line_color = document.getElementById('ev-line-color').value;
         
         card.setConfig({ ...config });
         

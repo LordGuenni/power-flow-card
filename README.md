@@ -86,6 +86,19 @@ max_power_threshold: 10000       # Optional: Power (W) at fastest speed (default
 
 **Tip:** Only add these if you want to change the defaults!
 
+### Line Colors (Optional)
+
+Override line colors directly in YAML using hex values (`#ffcc00`) or any valid CSS color:
+
+```yaml
+solar_line_color: "#ffd54f"
+grid_import_line_color: "#4fc3f7"
+grid_export_line_color: "#66bb6a"
+battery_charge_line_color: "#64b5f6"
+battery_discharge_line_color: "#29b6f6"
+ev_line_color: "#26c6da"
+```
+
 ### Descriptors (Optional Labels)
 
 Add labels and additional values below each component. **All descriptors are optional:**
@@ -142,6 +155,14 @@ max_flow_speed: 1
 min_power_threshold: 100
 max_power_threshold: 10000
 
+# Line colors (optional)
+solar_line_color: "#ffd54f"
+grid_import_line_color: "#4fc3f7"
+grid_export_line_color: "#66bb6a"
+battery_charge_line_color: "#64b5f6"
+battery_discharge_line_color: "#29b6f6"
+ev_line_color: "#26c6da"
+
 # Descriptors
 solar_descriptor_enabled: true
 solar_descriptor_label: Solar
@@ -192,6 +213,12 @@ All settings can be configured through the Home Assistant UI:
 | `max_flow_speed` | ❌ No | `1` | Fastest animation (seconds) |
 | `min_power_threshold` | ❌ No | `100` | Power (W) at min speed |
 | `max_power_threshold` | ❌ No | `10000` | Power (W) at max speed |
+| `solar_line_color` | ❌ No | Theme/default | Solar flow line color |
+| `grid_import_line_color` | ❌ No | Theme/default | Grid import flow line color |
+| `grid_export_line_color` | ❌ No | Theme/default | Grid export flow line color |
+| `battery_charge_line_color` | ❌ No | Theme/default | Battery charge flow line color |
+| `battery_discharge_line_color` | ❌ No | Theme/default | Battery discharge flow line color |
+| `ev_line_color` | ❌ No | Theme/default | EV flow line color |
 | `*_descriptor_enabled` | ❌ No | `false` | Show descriptor for component |
 | `*_descriptor_label` | ❌ No | - | Descriptor label text |
 | `*_descriptor_entity` | ❌ No | - | Entity for descriptor value |
@@ -204,7 +231,7 @@ A Docker-based testing environment is included for development:
 
 ```bash
 # Start the test server
-docker-compose up --build
+docker compose up --build
 
 # Open in browser
 http://localhost:8080/test.html
