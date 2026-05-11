@@ -442,6 +442,7 @@ class PowerFlowCard extends LitElement {
         position: relative;
         width: 100%;
         height: 350px;
+        container-type: size;
         pointer-events: none;
         padding: 16px;
         box-sizing: border-box;
@@ -463,7 +464,7 @@ class PowerFlowCard extends LitElement {
       .descriptor {
         position: absolute;
         font-size: 12px;
-        color: var(--secondary-text-color);
+        color: var(--secondary-text-color, #9aa0a6);
         pointer-events: none;
         text-align: center;
         white-space: nowrap;
@@ -475,7 +476,7 @@ class PowerFlowCard extends LitElement {
 
       .descriptor-line {
         width: 2px;
-        background-color: var(--primary-text-color);
+        background-color: var(--primary-text-color, #ffffff);
         opacity: 0.5;
         flex-shrink: 0;
       }
@@ -490,13 +491,13 @@ class PowerFlowCard extends LitElement {
       .descriptor-value {
         font-weight: bold;
         font-size: 14px;
-        color: var(--primary-text-color);
+        color: var(--primary-text-color, #ffffff);
       }
 
       .descriptor-label {
         font-weight: 500;
         font-size: 12px;
-        color: var(--secondary-text-color);
+        color: var(--secondary-text-color, #9aa0a6);
       }
 
       .descriptor-solar {
@@ -505,7 +506,8 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-solar .descriptor-line {
-        height: 5vh;
+        height: 45px;
+        height: 13cqh;
       }
 
       .descriptor-grid {
@@ -514,7 +516,8 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-grid .descriptor-line {
-        height: 25vh;
+        height: 225px;
+        height: 64cqh;
       }
 
       .descriptor-battery {
@@ -523,7 +526,8 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-battery .descriptor-line {
-        height: 10vh;
+        height: 90px;
+        height: 26cqh;
       }
 
       .descriptor-ev {
@@ -532,7 +536,8 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-ev .descriptor-line {
-        height: 16vh;
+        height: 144px;
+        height: 41cqh;
       }
 
       .descriptor-home {
@@ -541,7 +546,8 @@ class PowerFlowCard extends LitElement {
       }
 
       .descriptor-home .descriptor-line {
-        height: 13vh;
+        height: 117px;
+        height: 33cqh;
       }
 
       /* Animated Line Styles */
