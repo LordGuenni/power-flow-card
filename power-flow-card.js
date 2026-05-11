@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "https://unpkg.com/lit?module";
+import { LitElement, html, css, svg } from "https://unpkg.com/lit?module";
 
 class PowerFlowCard extends LitElement {
   static get properties() {
@@ -76,6 +76,13 @@ class PowerFlowCard extends LitElement {
     ];
 
     this.isInitialized = false;
+    this.descriptorAnchors = {
+      solar: { lineX: 523, lineY1: 12, lineY2: 137, textX: 537, valueY: 30, labelY: 54 },
+      grid: { lineX: 171, lineY1: 12, lineY2: 500, textX: 185, valueY: 30, labelY: 54 },
+      battery: { lineX: 672, lineY1: 12, lineY2: 400, textX: 686, valueY: 30, labelY: 54 },
+      ev: { lineX: 399, lineY1: 12, lineY2: 315, textX: 413, valueY: 30, labelY: 54 },
+      home: { lineX: 888, lineY1: 12, lineY2: 255, textX: 902, valueY: 30, labelY: 54 },
+    };
   }
 
   firstUpdated() {
@@ -460,94 +467,30 @@ class PowerFlowCard extends LitElement {
         opacity: 0.5;
       }
 
-      /* Descriptor Labels */
-      .descriptor {
+      #descriptor-overlay {
         position: absolute;
-        font-size: 12px;
-        color: var(--secondary-text-color, #9aa0a6);
+        inset: 0;
+        width: 100%;
+        height: 100%;
         pointer-events: none;
-        text-align: center;
-        white-space: nowrap;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 8px;
       }
 
       .descriptor-line {
-        width: 2px;
-        background-color: var(--primary-text-color, #ffffff);
+        stroke: var(--primary-text-color, #ffffff);
+        stroke-width: 2;
         opacity: 0.5;
-        flex-shrink: 0;
-      }
-
-      .descriptor-text {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2px;
       }
 
       .descriptor-value {
-        font-weight: bold;
+        fill: var(--primary-text-color, #ffffff);
         font-size: 14px;
-        color: var(--primary-text-color, #ffffff);
+        font-weight: bold;
       }
 
       .descriptor-label {
-        font-weight: 500;
+        fill: var(--secondary-text-color, #9aa0a6);
         font-size: 12px;
-        color: var(--secondary-text-color, #9aa0a6);
-      }
-
-      .descriptor-solar {
-        top: 0%;
-        left: 55%;
-      }
-
-      .descriptor-solar .descriptor-line {
-        height: 45px;
-        height: 13cqh;
-      }
-
-      .descriptor-grid {
-        top: 0%;
-        left: 15%;
-      }
-
-      .descriptor-grid .descriptor-line {
-        height: 225px;
-        height: 64cqh;
-      }
-
-      .descriptor-battery {
-        top: 0%;
-        left: 20%;
-      }
-
-      .descriptor-battery .descriptor-line {
-        height: 90px;
-        height: 26cqh;
-      }
-
-      .descriptor-ev {
-        top: 0%;
-        left: 35%;
-      }
-
-      .descriptor-ev .descriptor-line {
-        height: 144px;
-        height: 41cqh;
-      }
-
-      .descriptor-home {
-        top: 0%;
-        left: 78%;
-      }
-
-      .descriptor-home .descriptor-line {
-        height: 117px;
-        height: 33cqh;
+        font-weight: 500;
       }
 
       /* Animated Line Styles */
@@ -628,28 +571,27 @@ class PowerFlowCard extends LitElement {
   }
 
   // Helper method to render a descriptor with label and value
-  renderDescriptor(type, className) {
+  renderDescriptor(type) {
     const enabled = this.config[`${type}_descriptor_enabled`];
-    if (!enabled) return '';
+    const anchor = this.descriptorAnchors[type];
+    if (!enabled || !anchor) return "";
 
-    const label = this.config[`${type}_descriptor_label`] || '';
+    const label = this.config[`${type}_descriptor_label`] || "";
     const entityId = this.config[`${type}_descriptor_entity`];
-    
-    let value = '';
+
+    let value = "";
     if (entityId && this._hass && this._hass.states[entityId]) {
       const state = this._hass.states[entityId];
-      const unit = state.attributes.unit_of_measurement || '';
+      const unit = state.attributes.unit_of_measurement || "";
       value = `${state.state} ${unit}`.trim();
     }
 
-    return html`
-      <div class="descriptor ${className}">
-        <div class="descriptor-line"></div>
-        <div class="descriptor-text">
-          ${value ? html`<div class="descriptor-value">${value}</div>` : ''}
-          ${label ? html`<div class="descriptor-label">${label}</div>` : ''}
-        </div>
-      </div>
+    return svg`
+      <g class="descriptor descriptor-${type}">
+        <line class="descriptor-line" x1="${anchor.lineX}" y1="${anchor.lineY1}" x2="${anchor.lineX}" y2="${anchor.lineY2}"></line>
+        ${value ? svg`<text class="descriptor-value" x="${anchor.textX}" y="${anchor.valueY}">${value}</text>` : ""}
+        ${label ? svg`<text class="descriptor-label" x="${anchor.textX}" y="${anchor.labelY}">${label}</text>` : ""}
+      </g>
     `;
   }
 
@@ -665,13 +607,13 @@ class PowerFlowCard extends LitElement {
           <div id="svg-container-ev"></div>
           <div id="svg-container-primary"></div>
           <div id="svg-container-out"></div>
-          
-          <!-- Descriptor Labels -->
-          ${this.renderDescriptor('solar', 'descriptor-solar')}
-          ${this.renderDescriptor('grid', 'descriptor-grid')}
-          ${this.renderDescriptor('battery', 'descriptor-battery')}
-          ${this.renderDescriptor('ev', 'descriptor-ev')}
-          ${this.renderDescriptor('home', 'descriptor-home')}
+          <svg id="descriptor-overlay" viewBox="0 0 1139 756" preserveAspectRatio="xMidYMid meet">
+            ${this.renderDescriptor("solar")}
+            ${this.renderDescriptor("grid")}
+            ${this.renderDescriptor("battery")}
+            ${this.renderDescriptor("ev")}
+            ${this.renderDescriptor("home")}
+          </svg>
         </div>
       </ha-card>
     `;
