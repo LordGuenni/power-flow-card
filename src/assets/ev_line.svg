@@ -1,12 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 1139 756" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:10;">
-    <g id="Seite-1" serif:id="Seite 1" transform="matrix(1.860871,0,0,0.954421,0,0)">
-        <rect x="0" y="0" width="612" height="792" style="fill:none;"/>
-        <g transform="matrix(1.074766,0,0,2.095511,347.877607,490.672838)">
-            <g id="powerline-house" serif:id="powerline house">
-                <path d="M0,-1.304L-30.212,5.472L-65.506,-6.776L-82.194,-6.01" style="fill:none;fill-rule:nonzero;stroke:rgb(127,127,127);stroke-width:5px;"/>
-            </g>
-        </g>
-    </g>
-</svg>
+<svg width="100%" height="100%" viewBox="0 0 2375 1584" version="1.1" xmlns="http://www.w3.org/2000/svg" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:10;"><g id="powerline-house" style="display:inline" transform="translate(0,64)"><path d="m 1546.9452,887.85192 -41.3603,7.03546 c -7.945,2.67376 -16.9474,4.3545 -17.0501,20.17219 l 1.1933,81.56062 c 0.085,8.86871 -2.1271,17.50531 -17.5853,20.08811 l -228.3955,32.777 -200.0306,-78.0753 -37.533,-0.23158" style="fill:none;fill-rule:nonzero;stroke:#7f7f7f;stroke-width:20.83px"/></g></svg>

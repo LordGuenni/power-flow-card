@@ -1,12 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 1139 756" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:10;">
-    <g id="Seite-1" serif:id="Seite 1" transform="matrix(1.860871,0,0,0.954421,0,0)">
-        <rect x="0" y="0" width="612" height="792" style="fill:none;"/>
-        <g transform="matrix(-1.057727,0.371653,0.190617,2.06229,375.022538,482.29304)">
-            <g id="powerline-battery" serif:id="powerline battery">
-                <path d="M-23.65,-2.114L0.189,-2.114" style="fill:none;fill-rule:nonzero;stroke:rgb(127,127,127);stroke-width:5px;"/>
-            </g>
-        </g>
-    </g>
-</svg>
+<svg width="100%" height="100%" viewBox="0 0 2375 1584" version="1.1" xmlns="http://www.w3.org/2000/svg" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:10;"><g id="powerline-battery" transform="translate(0,-40)"><path d="m 1549.31,938.835 -97.754,17.617" style="fill:none;fill-rule:nonzero;stroke:#7f7f7f;stroke-width:20.83px"/></g></svg>
