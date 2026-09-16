@@ -1,12 +1,20 @@
-name: Pre-Release (Beta)
+name: 🧪 Pre-Release (Beta)
 
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Beta version number (e.g., 1.2.0)'
+      bump_type:
+        description: "Version bump type"
+        type: choice
+        options:
+          - minor
+          - major
         required: true
-        default: '1.0.0'
+        default: minor
+      description:
+        description: "Optional extra notes"
+        required: false
+        default: ""
 
 jobs:
   pre-release:
@@ -17,35 +25,94 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout Repository
+      - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Create Beta Tag
+      - name: 🧮 Compute version and changelog
+        id: prepare_release
+        run: |
+          latest_tag="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' 'v[0-9]*.[0-9]*.[0-9]*-beta' | sort -V | tail -n1)"
+          latest_version="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' 'v[0-9]*.[0-9]*.[0-9]*-beta' | sed -E 's/^v//' | sed -E 's/-beta$//' | sort -V | tail -n1)"
+          if [ -z "$latest_version" ]; then
+            latest_version="0.0.0"
+          fi
+
+          version="${latest_version}"
+          IFS='.' read -r major minor patch <<< "$version"
+
+          case "${{ github.event.inputs.bump_type }}" in
+            minor)
+              patch=$((patch + 1))
+              ;;
+            major)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            *)
+              echo "Unsupported bump type: ${{ github.event.inputs.bump_type }}"
+              exit 1
+              ;;
+          esac
+
+          next_version="${major}.${minor}.${patch}"
+          next_tag="v${next_version}-beta"
+          body_file="$(mktemp)"
+
+          if [ -n "$latest_tag" ] && git rev-parse "$latest_tag" >/dev/null 2>&1; then
+            commits="$(git log "${latest_tag}..HEAD" --pretty='- %s (%h)')"
+            changes_since_label="$latest_tag"
+          else
+            commits="$(git log --pretty='- %s (%h)')"
+            changes_since_label="initial commit"
+          fi
+
+          if [ -z "$commits" ]; then
+            commits="- No commits found."
+          fi
+
+          {
+            echo "## Beta Pre-Release v${next_version}"
+            echo
+            echo "This is a pre-release version for testing purposes."
+            echo
+            echo "### Warning"
+            echo "This version may contain experimental features and bugs."
+            echo
+            echo "### Changes since ${changes_since_label}"
+            echo "${commits}"
+            echo
+            if [ -n "${{ github.event.inputs.description }}" ]; then
+              echo "### Additional notes"
+              echo "${{ github.event.inputs.description }}"
+              echo
+            fi
+            echo "### Installation"
+            echo "Download \`power-flow-card.js\` and place it in your \`www\` folder."
+            echo
+            echo "### Found a bug?"
+            echo "Please report issues in the issue tracker."
+          } > "$body_file"
+
+          echo "next_tag=${next_tag}" >> "$GITHUB_OUTPUT"
+          echo "next_version=${next_version}" >> "$GITHUB_OUTPUT"
+          echo "body_file=${body_file}" >> "$GITHUB_OUTPUT"
+
+      - name: 🏷️ Create Beta Tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ github.event.inputs.version }}-beta" -m "Beta Release v${{ github.event.inputs.version }}"
-          git push origin "v${{ github.event.inputs.version }}-beta"
+          git tag -a "${{ steps.prepare_release.outputs.next_tag }}" -m "Beta Release v${{ steps.prepare_release.outputs.next_version }}"
+          git push origin "${{ steps.prepare_release.outputs.next_tag }}"
 
-      - name: Create Pre-Release
+      - name: 📦 Create Pre-Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.event.inputs.version }}-beta
-          name: "Beta Release v${{ github.event.inputs.version }}"
+          tag_name: ${{ steps.prepare_release.outputs.next_tag }}
+          name: "Beta Release v${{ steps.prepare_release.outputs.next_version }}"
           draft: false
           prerelease: true
-          body: |
-            ## Beta Pre-Release v${{ github.event.inputs.version }}
-            
-            This is a pre-release version for testing purposes.
-            
-            ### Warning
-            This version may contain experimental features and bugs.
-            
-            ### Installation
-            Download `power-flow-card.js` and place it in your `www` folder.
-            
-            ### Found a bug?
-            Please report issues in the issue tracker.
+          body_path: ${{ steps.prepare_release.outputs.body_file }}
           files: |
             power-flow-card.js
