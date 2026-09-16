@@ -18,7 +18,7 @@ Provides a clean, animated interface that makes it easy to understand how power 
 - **Theme Awareness & Custom Theming** - Native Light and Dark mode support with configurable house and roof colors
 - **Dynamic Typography & Icon Alignment** - Configurable primary and secondary font sizes with browser-compliant XHTML icon rendering
 - **Dynamic Battery Icons** - Material Design battery icons dynamically reflect current SOC percentage (e.g., `mdi:battery-70`)
-- **Primary & Secondary Descriptors** - Display multiple metrics per component (e.g., real-time power + daily yield, SOC %, or cost)
+- **Primary & Secondary Descriptors** - Display multiple metrics per component (e.g., real-time power + daily yield, SOC %, or cost). Click on primary sensor to open history.
 - **Single-Entity & Reversible Flow Support** - Direction and animation handle positive/negative flows seamlessly, with optional manual battery flow inversion
 - **High-Resolution Vector Graphics** - Upgraded 2375x1584 base graphics with precision-aligned animated powerlines
 - **Fully configurable via Home Assistant UI** - Visual Editor GUI with expandable setting sections
@@ -35,7 +35,7 @@ Provides a clean, animated interface that makes it easy to understand how power 
 ### Value Formatting & Units
 * **Added Auto-kW Conversion:** Introduced an `auto_kw_threshold` setting to automatically convert high Watt/Wh values into kW/kWh, improving dashboard readability during peak loads (e.g., EV charging).
 * **Added Dynamic Decimals:** Replaced rigid per-item decimal settings with a global, unit-aware scaling system (`decimals_w`, `decimals_kw`, and a fallback `decimals`), automatically adjusting visual precision as units dynamically change.
-* **Fixed Currency Formatting:** Implemented strict currency formatting overrides to ensure values containing '£' consistently display with exactly two decimal places.
+* **Added Currency Formatting:** Implemented strict currency formatting overrides to ensure currency consistently display with exactly two decimal places.
 
 ### UI, Theming & Typography
 * **Added Theme Awareness:** Implemented native Light and Dark mode theme support, automatically adjusting graphic fill colors, background opacities, and line strokes for optimal contrast.

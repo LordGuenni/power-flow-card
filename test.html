@@ -5,16 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Power Flow Card - Local Test</title>
     <style>
+      :root {
+        --primary-color: #03a9f4;
+        --success-color: #4caf50;
+        --error-color: #f44336;
+        --warning-color: #ff9800;
+      }
+
       body {
         background-color: #111;
         color: #fff;
         font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         padding: 20px;
         margin: 0;
+        transition: background-color 0.3s, color 0.3s;
       }
       
+      body.light-mode {
+        background-color: #e2e8f0; 
+        color: #111;
+      }
+
       .container {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
       }
 
@@ -27,13 +40,45 @@
         background: #1a1a1a;
         padding: 20px;
         border-radius: 8px;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        transition: background-color 0.3s;
+      }
+      
+      body.light-mode .controls {
+        background: #ffffff;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
       }
 
       .grid-controls {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 16px;
+      }
+
+      .section-box {
+        background: #222;
+        padding: 12px 16px;
+        border-radius: 6px;
+        border: 1px solid #333;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+      
+      body.light-mode .section-box {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+      }
+
+      .section-title {
+        font-size: 15px;
+        font-weight: bold;
+        margin-bottom: 12px;
+        color: #4facfe;
+        border-bottom: 1px solid #333;
+        padding-bottom: 6px;
+      }
+      
+      body.light-mode .section-title {
+        border-bottom-color: #cbd5e1;
       }
 
       .control-group {
@@ -45,12 +90,16 @@
 
       label {
         font-weight: 500;
-        font-size: 14px;
+        font-size: 13px;
         color: #ddd;
       }
+      
+      body.light-mode label {
+        color: #334155;
+      }
 
-      input[type="number"], input[type="text"], select {
-        width: 120px;
+      input[type="number"], input[type="text"] {
+        width: 110px;
         padding: 6px 8px;
         background: #2a2a2a;
         border: 1px solid #444;
@@ -58,10 +107,16 @@
         border-radius: 4px;
         box-sizing: border-box;
       }
+      
+      body.light-mode input {
+        background: #fff;
+        color: #000;
+        border-color: #cbd5e1;
+      }
 
       input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
         cursor: pointer;
       }
 
@@ -70,6 +125,12 @@
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
+        border-top: 1px solid #333;
+        padding-top: 20px;
+      }
+      
+      body.light-mode .btn-bar {
+        border-top-color: #e2e8f0;
       }
 
       button {
@@ -93,23 +154,21 @@
       button.secondary:hover {
         background: #555;
       }
-
-      .section-box {
-        background: #222;
-        padding: 12px 16px;
-        border-radius: 6px;
-        border: 1px solid #333;
+      
+      body.light-mode button.secondary {
+        background: #94a3b8;
+      }
+      body.light-mode button.secondary:hover {
+        background: #64748b;
       }
 
-      .section-title {
-        font-size: 15px;
-        font-weight: bold;
-        margin-bottom: 12px;
-        color: #4facfe;
-        border-bottom: 1px solid #333;
-        padding-bottom: 6px;
+      power-flow-card {
+        display: block;
+        max-width: 600px;
+        margin: 0 auto;
       }
 
+      /* Native HA Card Simulation */
       ha-card {
         background: #1c1c1e;
         border-radius: 16px;
@@ -119,6 +178,7 @@
         position: relative;
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2);
       }
 
       ha-card.theme-light {
@@ -141,36 +201,58 @@
       
       <div class="controls">
         <div class="grid-controls">
-          <!-- Power Values -->
+          
+          <!-- Primary Power Values -->
           <div class="section-box">
-            <div class="section-title">Power Values & Entities</div>
+            <div class="section-title">Primary Power (W)</div>
             <div class="control-group">
-              <label>Solar Power (W):</label>
-              <input type="number" id="solar" value="3450" step="50" />
+              <label>Solar Power:</label>
+              <input type="number" id="solar" value="4400" step="50" />
             </div>
             <div class="control-group">
-              <label>Grid Import (W):</label>
-              <input type="number" id="grid-import" value="650" step="50" />
+              <label>Grid Import:</label>
+              <input type="number" id="grid-import" value="452" step="50" />
             </div>
             <div class="control-group">
-              <label>Grid Export (W):</label>
+              <label>Grid Export:</label>
               <input type="number" id="grid-export" value="0" step="50" />
             </div>
             <div class="control-group">
-              <label>Battery Charge (W):</label>
-              <input type="number" id="battery-charge" value="1200" step="50" />
+              <label>Battery Charge:</label>
+              <input type="number" id="battery-charge" value="2200" step="50" />
             </div>
             <div class="control-group">
-              <label>Battery Discharge (W):</label>
+              <label>Battery Discharge:</label>
               <input type="number" id="battery-discharge" value="0" step="50" />
             </div>
             <div class="control-group">
-              <label>EV Charge (W):</label>
-              <input type="number" id="ev-charge" value="7200" step="100" />
+              <label>EV Charge:</label>
+              <input type="number" id="ev-charge" value="8600" step="100" />
+            </div>
+          </div>
+
+          <!-- Secondary Entities -->
+          <div class="section-box">
+            <div class="section-title">Secondary Entities</div>
+            <div class="control-group">
+              <label>PV Savings ($/£):</label>
+              <input type="text" id="pv-savings" value="$0.03" />
+            </div>
+            <div class="control-group">
+              <label>Grid Daily Cost (£):</label>
+              <input type="text" id="grid-cost" value="£2.45" />
             </div>
             <div class="control-group">
               <label>Battery SOC (%):</label>
-              <input type="number" id="battery-soc" value="76" min="0" max="100" />
+              <input type="number" id="battery-soc" value="86" min="0" max="100" />
+            </div>
+            <div class="control-group">
+              <label>EV Battery SOC (%):</label>
+              <input type="number" id="ev-soc" value="64" min="0" max="100" />
+            </div>
+            <div class="control-group">
+              <label>Home Demand (W):</label>
+              <input type="number" id="home-demand" value="790" step="10" />
             </div>
             <div class="control-group">
               <label>Invert Battery Flow:</label>
@@ -178,22 +260,48 @@
             </div>
           </div>
 
+          <!-- Formatting & Animation -->
+          <div class="section-box">
+            <div class="section-title">Formatting & Animation</div>
+            <div class="control-group">
+              <label>Auto-kW Threshold (W):</label>
+              <input type="number" id="auto-kw-threshold" value="1000" step="100" />
+            </div>
+            <div class="control-group">
+              <label>Decimals for W:</label>
+              <input type="number" id="decimals-w" value="0" min="0" max="4" />
+            </div>
+            <div class="control-group">
+              <label>Decimals for kW:</label>
+              <input type="number" id="decimals-kw" value="1" min="0" max="4" />
+            </div>
+            <div class="control-group">
+              <label>Active Threshold (W):</label>
+              <input type="number" id="threshold" value="10" step="1" />
+            </div>
+            <div class="control-group">
+              <label>Dynamic Speed:</label>
+              <input type="checkbox" id="dynamic-speed" checked />
+            </div>
+            <div class="control-group">
+              <label>Min Speed (s):</label>
+              <input type="number" id="min-speed" value="5" step="0.5" />
+            </div>
+            <div class="control-group">
+              <label>Max Speed (s):</label>
+              <input type="number" id="max-speed" value="1" step="0.1" />
+            </div>
+          </div>
+
           <!-- Theming & Typography -->
           <div class="section-box">
             <div class="section-title">Theming & Typography</div>
             <div class="control-group">
-              <label>Theme Mode:</label>
-              <select id="theme-mode">
-                <option value="dark" selected>Dark Mode</option>
-                <option value="light">Light Mode</option>
-              </select>
-            </div>
-            <div class="control-group">
-              <label>Primary Font Size (px):</label>
+              <label>Primary Font (px):</label>
               <input type="number" id="primary-font-size" value="34" min="16" max="60" />
             </div>
             <div class="control-group">
-              <label>Secondary Font Size (px):</label>
+              <label>Secondary Font (px):</label>
               <input type="number" id="secondary-font-size" value="28" min="14" max="50" />
             </div>
             <div class="control-group">
@@ -214,57 +322,29 @@
             </div>
           </div>
 
-          <!-- Value Formatting & Auto-kW -->
-          <div class="section-box">
-            <div class="section-title">Value Formatting & Units</div>
-            <div class="control-group">
-              <label>Auto-kW Threshold (W):</label>
-              <input type="number" id="auto-kw-threshold" value="1000" step="100" />
-            </div>
-            <div class="control-group">
-              <label>Decimals for W:</label>
-              <input type="number" id="decimals-w" value="0" min="0" max="4" />
-            </div>
-            <div class="control-group">
-              <label>Decimals for kW:</label>
-              <input type="number" id="decimals-kw" value="2" min="0" max="4" />
-            </div>
-            <div class="control-group">
-              <label>Threshold (W):</label>
-              <input type="number" id="threshold" value="10" step="1" />
-            </div>
-            <div class="control-group">
-              <label>Enable Dynamic Speed:</label>
-              <input type="checkbox" id="dynamic-speed" checked />
-            </div>
-            <div class="control-group">
-              <label>Min Speed (s):</label>
-              <input type="number" id="min-speed" value="5" step="0.5" />
-            </div>
-            <div class="control-group">
-              <label>Max Speed (s):</label>
-              <input type="number" id="max-speed" value="1" step="0.1" />
-            </div>
-          </div>
         </div>
 
         <div class="btn-bar">
-          <button onclick="updateValues()">Update Values</button>
-          <button onclick="updateConfig()">Apply Config</button>
+          <button onclick="updateValues()">Apply Values</button>
+          <button onclick="updateConfig()">Apply Settings</button>
           <button class="secondary" onclick="toggleTheme()">Toggle Theme</button>
           <button onclick="startDemo()">Start Demo</button>
           <button class="secondary" onclick="stopDemo()">Stop Demo</button>
         </div>
       </div>
 
-      <!-- Card (includes descriptors and connector lines) -->
+      <!-- Card Container -->
       <power-flow-card id="card"></power-flow-card>
+      
+      <p style="text-align:center; color: #888; font-size: 12px; margin-top: 20px;">
+        *Click any text descriptor to log the `tap_entity` target to the browser console.
+      </p>
     </div>
 
     <script type="module">
       import './power-flow-card.js';
 
-      // Mock Home Assistant ha-icon element for testing
+      // --- MOCK HOME ASSISTANT HA-ICON COMPONENT ---
       class HaIcon extends HTMLElement {
         static get observedAttributes() { return ['icon']; }
         attributeChangedCallback() { this.render(); }
@@ -282,7 +362,7 @@
             } else {
               symbol = '🔋';
             }
-          } else if (icon.includes('currency') || icon.includes('cash') || icon.includes('pound')) {
+          } else if (icon.includes('currency') || icon.includes('cash') || icon.includes('pound') || icon.includes('gbp')) {
             symbol = '£';
           } else if (icon.includes('solar') || icon.includes('sun')) {
             symbol = '☀️';
@@ -290,6 +370,8 @@
             symbol = '🚗';
           } else if (icon.includes('home') || icon.includes('house')) {
             symbol = '🏠';
+          } else if (icon.includes('leaf')) {
+            symbol = '🍃';
           }
           this.innerHTML = `<span style="font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;">${symbol}</span>`;
         }
@@ -298,60 +380,44 @@
         customElements.define('ha-icon', HaIcon);
       }
 
+      // --- MOCK HOME ASSISTANT HA-CARD COMPONENT ---
+      class HaCard extends HTMLElement {
+        connectedCallback() {
+          if (this.hasAttribute('header') && !this.querySelector('.card-header')) {
+            const header = document.createElement('div');
+            header.className = 'card-header';
+            header.textContent = this.getAttribute('header');
+            header.style.padding = '24px 16px 16px';
+            header.style.fontSize = '24px';
+            header.style.fontWeight = '400';
+            header.style.color = 'var(--primary-text-color)';
+            this.prepend(header);
+          }
+        }
+      }
+      if (!customElements.get('ha-card')) {
+        customElements.define('ha-card', HaCard);
+      }
+
       // Mock Home Assistant hass object
       const mockHass = {
-        themes: {
-          darkMode: true
-        },
+        themes: { darkMode: true },
         states: {
-          'sensor.solar_power': {
-            state: '3450',
-            attributes: { unit_of_measurement: 'W' }
-          },
-          'sensor.solar_daily_yield': {
-            state: '18.4',
-            attributes: { unit_of_measurement: 'kWh' }
-          },
-          'sensor.grid_import_power': {
-            state: '650',
-            attributes: { unit_of_measurement: 'W' }
-          },
-          'sensor.grid_export_power': {
-            state: '0',
-            attributes: { unit_of_measurement: 'W' }
-          },
-          'sensor.grid_daily_cost': {
-            state: '2.45',
-            attributes: { unit_of_measurement: '£' }
-          },
-          'sensor.battery_charge_power': {
-            state: '1200',
-            attributes: { unit_of_measurement: 'W' }
-          },
-          'sensor.battery_discharge_power': {
-            state: '0',
-            attributes: { unit_of_measurement: 'W' }
-          },
-          'sensor.battery_soc': {
-            state: '76',
-            attributes: { unit_of_measurement: '%' }
-          },
-          'sensor.ev_charge_power': {
-            state: '7.2',
-            attributes: { unit_of_measurement: 'kW' }
-          },
-          'sensor.ev_battery_soc': {
-            state: '58',
-            attributes: { unit_of_measurement: '%' }
-          },
-          'sensor.home_consumption': {
-            state: '2100',
-            attributes: { unit_of_measurement: 'W' }
-          }
+          'sensor.solar_power': { state: '4400', attributes: { unit_of_measurement: 'W' } },
+          'sensor.solar_daily_yield': { state: '$0.03', attributes: { unit_of_measurement: '£' } }, 
+          'sensor.grid_import_power': { state: '452', attributes: { unit_of_measurement: 'W' } },
+          'sensor.grid_export_power': { state: '0', attributes: { unit_of_measurement: 'W' } },
+          'sensor.grid_daily_cost': { state: '£2.45', attributes: { unit_of_measurement: '£' } },
+          'sensor.battery_charge_power': { state: '2200', attributes: { unit_of_measurement: 'W' } },
+          'sensor.battery_discharge_power': { state: '0', attributes: { unit_of_measurement: 'W' } },
+          'sensor.battery_soc': { state: '86', attributes: { unit_of_measurement: '%' } },
+          'sensor.ev_charge_power': { state: '8600', attributes: { unit_of_measurement: 'W' } },
+          'sensor.ev_battery_soc': { state: '64', attributes: { unit_of_measurement: '%' } },
+          'sensor.home_consumption': { state: '790', attributes: { unit_of_measurement: 'W' } }
         }
       };
 
-      // Card configuration
+      // Card configuration matching your testing constraints
       let config = {
         name: 'Home Power Flow',
         threshold: 10,
@@ -364,8 +430,9 @@
         secondary_font_size: 28,
         auto_kw_threshold: 1000,
         decimals_w: 0,
-        decimals_kw: 2,
+        decimals_kw: 1,
         invert_battery_flow: false,
+        
         entities: {
           solar_power: 'sensor.solar_power',
           grid_import_power: 'sensor.grid_import_power',
@@ -374,32 +441,36 @@
           battery_discharge_power: 'sensor.battery_discharge_power',
           ev_charge_power: 'sensor.ev_charge_power'
         },
+
         solar_descriptor_enabled: true,
-        solar_descriptor_label: 'Solar',
+        solar_descriptor_label: 'PV',
         solar_descriptor_entity: 'sensor.solar_power',
         solar_secondary_entity: 'sensor.solar_daily_yield',
-        solar_secondary_icon: 'mdi:solar-power',
-
+        solar_secondary_display_unit: '£', // Tests regex replacement!
+        
         grid_descriptor_enabled: true,
         grid_descriptor_label: 'Grid',
         grid_descriptor_entity: 'sensor.grid_import_power',
         grid_secondary_entity: 'sensor.grid_daily_cost',
+        grid_secondary_display_unit: '£',
         grid_secondary_icon: 'mdi:currency-gbp',
 
         battery_descriptor_enabled: true,
-        battery_descriptor_label: 'Battery',
+        battery_descriptor_label: 'Ecoflow',
         battery_descriptor_entity: 'sensor.battery_charge_power',
         battery_secondary_entity: 'sensor.battery_soc',
+        battery_secondary_display_unit: '%',
         battery_secondary_icon: 'mdi:battery',
 
         ev_descriptor_enabled: true,
-        ev_descriptor_label: 'EV Charger',
+        ev_descriptor_label: 'Skoda',
         ev_descriptor_entity: 'sensor.ev_charge_power',
         ev_secondary_entity: 'sensor.ev_battery_soc',
+        ev_secondary_display_unit: '%',
         ev_secondary_icon: 'mdi:car-electric',
 
         home_descriptor_enabled: true,
-        home_descriptor_label: 'Home',
+        home_descriptor_label: 'Consumption',
         home_descriptor_entity: 'sensor.home_consumption'
       };
 
@@ -408,31 +479,44 @@
       card.setConfig(config);
       card.hass = mockHass;
 
-      // Global helper functions
       window.updateValues = function() {
+        // Update Primary Powers
         mockHass.states['sensor.solar_power'].state = document.getElementById('solar').value;
         mockHass.states['sensor.grid_import_power'].state = document.getElementById('grid-import').value;
         mockHass.states['sensor.grid_export_power'].state = document.getElementById('grid-export').value;
-        mockHass.states['sensor.battery_charge_power'].state = document.getElementById('battery-charge').value;
-        mockHass.states['sensor.battery_discharge_power'].state = document.getElementById('battery-discharge').value;
         mockHass.states['sensor.ev_charge_power'].state = document.getElementById('ev-charge').value;
-        mockHass.states['sensor.battery_soc'].state = document.getElementById('battery-soc').value;
+        mockHass.states['sensor.home_consumption'].state = document.getElementById('home-demand').value;
         
+        const batCharge = parseFloat(document.getElementById('battery-charge').value) || 0;
+        const batDischarge = parseFloat(document.getElementById('battery-discharge').value) || 0;
+        mockHass.states['sensor.battery_charge_power'].state = batCharge > 0 ? batCharge.toString() : (-batDischarge).toString();
+        mockHass.states['sensor.battery_discharge_power'].state = batDischarge.toString();
+        
+        // Update Secondary Info
+        mockHass.states['sensor.solar_daily_yield'].state = document.getElementById('pv-savings').value;
+        mockHass.states['sensor.grid_daily_cost'].state = document.getElementById('grid-cost').value;
+        mockHass.states['sensor.battery_soc'].state = document.getElementById('battery-soc').value;
+        mockHass.states['sensor.ev_battery_soc'].state = document.getElementById('ev-soc').value;
+
         card.hass = { ...mockHass };
       };
 
       window.updateConfig = function() {
+        // Standard Toggles
         config.dynamic_speed_enabled = document.getElementById('dynamic-speed').checked;
+        config.invert_battery_flow = document.getElementById('invert-battery-flow').checked;
+        
+        // Sliders & Numbers
         config.min_flow_speed = parseFloat(document.getElementById('min-speed').value);
         config.max_flow_speed = parseFloat(document.getElementById('max-speed').value);
         config.threshold = parseFloat(document.getElementById('threshold').value);
-        config.invert_battery_flow = document.getElementById('invert-battery-flow').checked;
         config.primary_font_size = parseInt(document.getElementById('primary-font-size').value, 10);
         config.secondary_font_size = parseInt(document.getElementById('secondary-font-size').value, 10);
         config.auto_kw_threshold = parseFloat(document.getElementById('auto-kw-threshold').value);
         config.decimals_w = parseInt(document.getElementById('decimals-w').value, 10);
         config.decimals_kw = parseInt(document.getElementById('decimals-kw').value, 10);
 
+        // Styling Variables
         const hcd = document.getElementById('house-color-dark').value.trim();
         const rcd = document.getElementById('roof-color-dark').value.trim();
         const hcl = document.getElementById('house-color-light').value.trim();
@@ -443,17 +527,18 @@
         if (hcl) config.house_color_light = hcl; else delete config.house_color_light;
         if (rcl) config.roof_color_light = rcl; else delete config.roof_color_light;
 
-        const themeMode = document.getElementById('theme-mode').value;
-        mockHass.themes.darkMode = themeMode === 'dark';
-
         card.setConfig({ ...config });
-        card.hass = { ...mockHass };
+        setTimeout(() => { card.hass = { ...mockHass }; }, 10);
       };
 
       window.toggleTheme = function() {
-        const themeSelect = document.getElementById('theme-mode');
-        themeSelect.value = themeSelect.value === 'dark' ? 'light' : 'dark';
-        window.updateConfig();
+        const isDark = mockHass.themes.darkMode;
+        mockHass.themes.darkMode = !isDark;
+        
+        // Toggle the body class to update background and input fields
+        document.body.classList.toggle('light-mode', !mockHass.themes.darkMode);
+        
+        card.hass = { ...mockHass };
       };
 
       let demoInterval;
@@ -484,6 +569,11 @@
           demoInterval = null;
         }
       };
+
+      document.addEventListener('hass-more-info', (e) => {
+        console.log(`[simulated-ha] Popup triggered for: ${e.detail.entityId}`);
+        alert(`Home Assistant would open more-info for:\n\n${e.detail.entityId}`);
+      });
     </script>
   </body>
 </html>

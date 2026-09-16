@@ -77,11 +77,11 @@ class PowerFlowCard extends LitElement {
     this.isInitialized = false;
 
     this.descriptorAnchors = {
-      solar: { lineX: 523, lineY1: -38, lineY2: 137, textX: 537 },
-      grid: { lineX: 171, lineY1: -38, lineY2: 500, textX: 185 },
-      battery: { lineX: 672, lineY1: -38, lineY2: 400, textX: 686 },
-      ev: { lineX: 365, lineY1: -38, lineY2: 315, textX: 379 },
-      home: { lineX: 888, lineY1: -38, lineY2: 255, textX: 902 },
+      solar: { lineX: 523, lineY1: -70, lineY2: 137, textX: 537 },
+      grid: { lineX: 171, lineY1: -70, lineY2: 500, textX: 185 },
+      battery: { lineX: 672, lineY1: -70, lineY2: 400, textX: 686 },
+      ev: { lineX: 365, lineY1: -70, lineY2: 315, textX: 379 },
+      home: { lineX: 888, lineY1: -70, lineY2: 255, textX: 902 },
     };
   }
 
@@ -128,11 +128,18 @@ class PowerFlowCard extends LitElement {
     }
   }
 
+  alignSVGViewBox(svgEl) {
+    svgEl.setAttribute("preserveAspectRatio", "none");
+    svgEl.style.width = "100%";
+    svgEl.style.height = "100%";
+  }
+
   processSVGString(text, containerEl, lineType) {
     containerEl.innerHTML = text;
     const svgEl = containerEl.querySelector("svg");
     if (!svgEl) return;
 
+    this.alignSVGViewBox(svgEl);
     this.ensureGlow(svgEl);
 
     svgEl
@@ -164,16 +171,13 @@ class PowerFlowCard extends LitElement {
 
       if (isBackground) {
         containerEl.innerHTML = text;
+        const svgEl = containerEl.querySelector("svg");
+        if (svgEl) this.alignSVGViewBox(svgEl);
       } else {
         this.processSVGString(text, containerEl, lineType);
       }
     } catch (err) {
       console.error(`Failed to load SVG for "${lineType}" from path "${path}":`, err);
-      containerEl.innerHTML = `
-                <p style="color:#f99; text-align:center; font-weight:bold;">
-                    Error loading ${lineType} SVG
-                </p>
-            `;
     }
   }
 
@@ -274,7 +278,8 @@ class PowerFlowCard extends LitElement {
           const maxPower = this.config.max_power_threshold || 10000;
           
           const clampedPower = Math.max(minPower, Math.min(maxPower, Math.abs(value)));
-          const speedRatio = (clampedPower - minPower) / (maxPower - minPower);
+          const powerDiff = maxPower - minPower;
+          const speedRatio = powerDiff === 0 ? 1 : (clampedPower - minPower) / powerDiff;
           animationDuration = minSpeed - (speedRatio * (minSpeed - maxSpeed));
         }
 
@@ -282,6 +287,16 @@ class PowerFlowCard extends LitElement {
           line.classList.toggle("flow-active", isActive);
           line.classList.toggle("flow-off", !isActive);
           line.classList.toggle("reverse-flow", reverse);
+          
+          if (cfg.type === "bat-charge") {
+            if (reverse) {
+              line.classList.remove("bat-charge");
+              line.classList.add("bat-discharge");
+            } else {
+              line.classList.remove("bat-discharge");
+              line.classList.add("bat-charge");
+            }
+          }
           
           if (isActive) {
             line.style.setProperty('--animation-duration', `${animationDuration}s`);
@@ -311,7 +326,7 @@ class PowerFlowCard extends LitElement {
         { name: `${prefix}_descriptor_enabled`, selector: { boolean: {} } },
         { name: `${prefix}_descriptor_label`, selector: { text: {} } },
         
-        // Primary
+        { name: `${prefix}_tap_entity`, selector: { entity: {} } },
         { name: `${prefix}_descriptor_entity`, selector: { entity: {} } },
         { name: `${prefix}_display_unit`, selector: { text: {} } },
         { name: `${prefix}_unit_multiplier`, type: "float" },
@@ -448,6 +463,7 @@ class PowerFlowCard extends LitElement {
         if (schema.name.endsWith("_descriptor_enabled")) return "Enable descriptor";
         if (schema.name.endsWith("_descriptor_label")) return "Label";
         
+        if (schema.name.endsWith("_tap_entity")) return "More-Info Click Override (Optional)";
         if (schema.name.endsWith("_descriptor_entity")) return "Primary Entity (Power)";
         if (schema.name.endsWith("_display_unit") && !schema.name.includes("_secondary_")) return "Primary Display Unit";
         if (schema.name.endsWith("_unit_multiplier") && !schema.name.includes("_secondary_")) return "Primary Unit Multiplier";
@@ -506,55 +522,68 @@ class PowerFlowCard extends LitElement {
       :host {
         display: block;
       }
+      ha-card {
+        overflow: hidden !important; 
+      }
       #svg-overlay {
         position: relative;
-        width: 100%;
-        height: 350px;
+        width: 100%; 
+        left: 0; 
+        aspect-ratio: 1.5; 
+        height: auto;
+        margin-top: 48px; /* Increased from 32px for more title breathing room */
+        margin-bottom: -7%; 
         container-type: size;
         pointer-events: none;
-        padding: 48px 16px 16px 16px; 
-        box-sizing: border-box;
       }
       #svg-overlay > div:not(.descriptor) {
         position: absolute;
-        inset: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
       }
       #svg-container-bg svg {
         opacity: 0.5;
       }
       
-      /* Default Dark Mode Styles (Boosted visibility over original SVG) */
       #svg-container-bg #house path { fill: var(--pfc-house-color-dark, #4a5976) !important; }
       #svg-container-bg #roof path { fill: var(--pfc-roof-color-dark, #3b465e) !important; }
+      
+      /* Lighter Dark Mode Car Layer Fix */
+      #svg-container-bg #car path:nth-child(1) { fill: #334155 !important; }
+      #svg-container-bg #car path:nth-child(2) { fill: #94a3b8 !important; }
+      #svg-container-bg #car path:nth-child(3) { fill: #475569 !important; }
 
-      /* Theme Support for Background SVG in Light Mode */
-      .theme-light #svg-container-bg svg {
-        opacity: 0.8; 
-      }
+      .theme-light #svg-container-bg svg { opacity: 0.8; }
       .theme-light #svg-container-bg #house path { fill: var(--pfc-house-color-light, #dce1e8) !important; }
       .theme-light #svg-container-bg #roof path { fill: var(--pfc-roof-color-light, #c8d0db) !important; }
       .theme-light #svg-container-bg #windows path { fill: #9bc2e6 !important; } 
       .theme-light #svg-container-bg #solar path { fill: #666155 !important; } 
-      .theme-light #svg-container-bg #inverter path { fill: #a5b1c2 !important; }
-      .theme-light #svg-container-bg #car path { fill: #a5b1c2 !important; }
-      .theme-light #svg-container-bg #battery path:nth-child(1) { fill: #a5b1c2 !important; }
+      .theme-light #svg-container-bg #inverter path { fill: #475569 !important; } /* Darkened Slate */
+      .theme-light #svg-container-bg #battery path:nth-child(1) { fill: #475569 !important; } /* Darkened Slate */
+      
+      .theme-light #svg-container-bg #car path:nth-child(1) { fill: #64748b !important; }
+      .theme-light #svg-container-bg #car path:nth-child(2) { fill: #e2e8f0 !important; }
+      .theme-light #svg-container-bg #car path:nth-child(3) { fill: #94a3b8 !important; }
       
       .theme-light #svg-container-bg #powerline-solar path,
       .theme-light #svg-container-bg #powerline-outside path,
       .theme-light #svg-container-bg #powerline-grid path:nth-child(3) { 
-        stroke: #777777 !important; 
+        stroke: #c2c9d6 !important; 
+        stroke-width: 20.83px !important; 
       }
       .theme-light #svg-container-bg #powerline-battery path,
       .theme-light #svg-container-bg #powerline-house path { 
-        stroke: #555555 !important; 
+        stroke: #b3bcd0 !important; 
+        stroke-width: 20.83px !important; 
       }
 
       #descriptor-overlay {
         position: absolute;
-        inset: 0;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         pointer-events: none;
@@ -566,7 +595,6 @@ class PowerFlowCard extends LitElement {
         opacity: 0.5;
       }
       
-      /* Use fallback to dark text in light mode just in case HA vars fail */
       .theme-light .descriptor-line { stroke: var(--primary-text-color, #000000); }
       .theme-light .descriptor-value,
       .theme-light .descriptor-secondary-value { fill: var(--primary-text-color, #000000); }
@@ -592,7 +620,7 @@ class PowerFlowCard extends LitElement {
       }
 
       .anim-line {
-        stroke-width: 6px;
+        stroke-width: 7px;
         stroke-linecap: round;
         filter: url(#glow);
         stroke-dasharray: 100 2000;
@@ -667,15 +695,43 @@ class PowerFlowCard extends LitElement {
     return rawIcon;
   }
 
-  formatValue(stateStr, currentUnit, displayUnitCfg, multiplierCfg, decimalsCfg) {
-    let val = parseFloat(stateStr);
-    
-    const isCurrency = (displayUnitCfg && displayUnitCfg.includes("£")) || (currentUnit && currentUnit.includes("£"));
+  formatValue(stateStr, currentUnit, displayUnitCfg, multiplierCfg, decimalsCfg, entityId) {
+    if (!stateStr || stateStr.toLowerCase() === "unavailable" || stateStr.toLowerCase() === "unknown") {
+      return "Unavailable";
+    }
 
+    let val = parseFloat(stateStr.replace(/[^\d.-]/g, ''));
     if (isNaN(val)) return `${stateStr} ${currentUnit || ""}`.trim();
+
+    const currencyRegex = /[\$£€¥₹₽₩¢₪₫฿₺]/;
+    let symbol = "";
+    let isCurrency = false;
+
+    if (currencyRegex.test(stateStr)) {
+      symbol = stateStr.match(currencyRegex)[0];
+      isCurrency = true;
+    } else if (displayUnitCfg && currencyRegex.test(displayUnitCfg)) {
+      symbol = displayUnitCfg.match(currencyRegex)[0];
+      isCurrency = true;
+    } else if (currentUnit && currencyRegex.test(currentUnit)) {
+      symbol = currentUnit.match(currencyRegex)[0];
+      isCurrency = true;
+    } else if (entityId && this._hass && this._hass.states[entityId]) {
+      if (this._hass.states[entityId].attributes.device_class === "monetary") {
+        isCurrency = true;
+        const candidate = displayUnitCfg || currentUnit || "";
+        if (currencyRegex.test(candidate)) {
+          symbol = candidate.match(currencyRegex)[0];
+        }
+      }
+    }
 
     let displayUnit = (displayUnitCfg !== undefined && displayUnitCfg !== "") ? displayUnitCfg : 
                       (this.config.display_unit !== undefined && this.config.display_unit !== "") ? this.config.display_unit : (currentUnit || "");
+
+    if (symbol && displayUnit) {
+      displayUnit = displayUnit.replace(currencyRegex, "").trim();
+    }
 
     let multiplier = (multiplierCfg !== undefined && multiplierCfg !== "") ? parseFloat(multiplierCfg) : 
                      (this.config.unit_multiplier !== undefined && this.config.unit_multiplier !== "") ? parseFloat(this.config.unit_multiplier) : 1;
@@ -709,7 +765,7 @@ class PowerFlowCard extends LitElement {
     // Dynamic decimals based on final calculated unit if not specifically overridden per-item
     if (decimals === undefined) {
       const finalUnitLower = (displayUnit || "").toLowerCase().trim();
-      if (isCurrency || finalUnitLower.includes('£')) {
+      if (symbol || isCurrency) {
         decimals = 2; // Always force 2 decimals for currency
       } else if (finalUnitLower.includes('kw')) {
         decimals = this.config.decimals_kw !== undefined && this.config.decimals_kw !== "" ? parseInt(this.config.decimals_kw, 10) : 2;
@@ -729,12 +785,22 @@ class PowerFlowCard extends LitElement {
       formattedNum = (Math.round(val * 100) / 100).toString();
     }
 
-    if (isCurrency || (displayUnit && displayUnit.includes("£"))) {
-      let cleanUnit = displayUnit ? displayUnit.replace("£", "").trim() : "";
-      return `£${formattedNum}${cleanUnit ? ' ' + cleanUnit : ''}`;
+    if (symbol) {
+      return `${symbol}${formattedNum}${displayUnit ? ' ' + displayUnit : ''}`;
     }
 
     return `${formattedNum} ${displayUnit || ""}`.trim();
+  }
+
+  fireMoreInfo(entityId) {
+    if (!entityId) return;
+    const event = new CustomEvent("hass-more-info", {
+      bubbles: true,
+      cancelable: false,
+      composed: true,
+      detail: { entityId },
+    });
+    this.dispatchEvent(event);
   }
 
   renderDescriptor(type) {
@@ -760,7 +826,9 @@ class PowerFlowCard extends LitElement {
         state.state, 
         unit, 
         this.config[`${type}_display_unit`], 
-        this.config[`${type}_unit_multiplier`]
+        this.config[`${type}_unit_multiplier`],
+        undefined,
+        primaryEntityId
       );
     }
 
@@ -778,7 +846,9 @@ class PowerFlowCard extends LitElement {
         state.state, 
         unit, 
         this.config[`${type}_secondary_display_unit`], 
-        this.config[`${type}_secondary_unit_multiplier`]
+        this.config[`${type}_secondary_unit_multiplier`],
+        undefined,
+        secondaryEntityId
       );
     }
 
@@ -802,8 +872,7 @@ class PowerFlowCard extends LitElement {
       rows.push({ type: 'text', text: label, class: "descriptor-label", offset: 0, fontSize: secondaryFontSize });
     }
 
-    // Set starting Y appropriately under the top of the line
-    let currentY = -5; 
+    let currentY = -35; 
     
     const textNodes = rows.map((row) => {
       let node;
@@ -827,8 +896,12 @@ class PowerFlowCard extends LitElement {
       return node;
     });
 
+    const tapEntityId = this.config[`${type}_tap_entity`] || primaryEntityId;
+
     return svg`
-      <g class="descriptor descriptor-${type}">
+      <g class="descriptor descriptor-${type}"
+         style="cursor: pointer; pointer-events: auto;"
+         @click="${() => this.fireMoreInfo(tapEntityId)}">
         <line class="descriptor-line" x1="${anchor.lineX}" y1="${anchor.lineY1}" x2="${anchor.lineX}" y2="${anchor.lineY2}"></line>
         ${textNodes}
       </g>
@@ -853,7 +926,7 @@ class PowerFlowCard extends LitElement {
           <div id="svg-container-ev"></div>
           <div id="svg-container-primary"></div>
           <div id="svg-container-out"></div>
-          <svg id="descriptor-overlay" viewBox="0 0 1139 756" preserveAspectRatio="xMidYMid meet" style="overflow: visible;">
+          <svg id="descriptor-overlay" viewBox="0 0 1139 756" preserveAspectRatio="none" style="overflow: visible;">
             ${this.renderDescriptor("solar")}
             ${this.renderDescriptor("grid")}
             ${this.renderDescriptor("battery")}
